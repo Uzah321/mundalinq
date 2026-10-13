@@ -1,0 +1,50 @@
+# Cloud builds for the MundaLinq mobile app (mobile/). iOS needs a Mac, so the iPhone app is built on Codemagic's
+# Macs and sent to TestFlight. One-time setup (Apple Developer account, App Store Connect API key, signing) is in
+# mobile/README.md under "iPhone builds". Android APKs are built locally, where the signing key lives.
+workflows:
+  ios-testflight:
+    name: iPhone app to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # The App Store Connect API key, added in Codemagic under Team settings › Integrations › Developer Portal.
+      app_store_connect: MundaLinq App Store Connect
+    environment:
+      flutter: 3.47.7
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.mundalinq.app
+      vars:
+        # The app's default server. Testers can change it in the app under Account › Server address.
+        API_BASE_URL: http://192.168.111.105:8000/api/v1
+        # Shows the sandbox's test numbers on the payment screen. Set to false with a real payment provider.
+        SANDBOX_PAYMENTS: "true"
+        # The app's Apple ID: App Store Connect › the app › App Information › Apple ID (digits).
+        APP_STORE_APPLE_ID: "REPLACE_WITH_APPLE_ID"
+    scripts:
+      - name: Get packages
+        script: cd mobile && flutter pub get
+      - name: Run tests
+        script: cd mobile && flutter test
+      - name: Set up code signing
+        script: xcode-project use-profiles
+      - name: Build the iPhone app
+        script: |
+          cd mobile
+          # Each TestFlight upload needs a higher build number than the last one.
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
+          flutter build ipa --release \
+            --build-number=$((LATEST + 1)) \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=SANDBOX_PAYMENTS="$SANDBOX_PAYMENTS" \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+

@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": "01a13011-1d07-7268-b4f7-4fdcabab2590",
+      "label": "Home",
+      "recipient_name": "Demo Buyer",
+      "phone": "+263770000003",
+      "province": "Harare",
+      "district": "Harare",
+      "ward": null,
+      "address_line": "12 Samora Machel Avenue",
+      "directions": "Blue gate opposite the clinic",
+      "latitude": -17.8292,
+      "longitude": 31.0522,
+      "is_default": true
+    }
+  ]
+}

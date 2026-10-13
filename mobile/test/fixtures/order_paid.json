@@ -1,0 +1,89 @@
+{
+  "data": {
+    "id": "01a1337d-eecf-7003-acb8-6873c7bcbcb7",
+    "number": "ML-P8JK5Z",
+    "status": "paid",
+    "cancellation_reason": null,
+    "currency": "USD",
+    "subtotal": "2.40",
+    "delivery_fee": "0.00",
+    "total": "2.40",
+    "note": "Flow check",
+    "payment_due_at": "2026-10-13T07:20:54+00:00",
+    "seller_orders": [
+      {
+        "id": "01a1337d-ef0a-737c-b0e2-6145a907894e",
+        "number": "ML-P8JK5Z-1",
+        "status": "preparing",
+        "farm": {
+          "id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+          "name": "Demo Green Acres",
+          "contact_phone": "+263711241106"
+        },
+        "fulfilment_method": "pickup",
+        "items": [
+          {
+            "id": "01a1337d-ef11-72ae-b802-1d34ad91be95",
+            "product_id": "01a13011-1d10-72d6-b8ba-8d603fa9f1e3",
+            "title": "Roma tomatoes",
+            "label": null,
+            "unit": {
+              "code": "kg",
+              "name": "kilogram",
+              "plural_name": "kilograms"
+            },
+            "quantity": "2",
+            "confirmed_quantity": "2",
+            "unit_price": "1.20",
+            "line_total": "2.40"
+          }
+        ],
+        "subtotal": "2.40",
+        "delivery_fee": "0.00",
+        "total": "2.40",
+        "rejection_reason": null,
+        "confirm_by": "2026-10-13T08:20:53+00:00",
+        "handover_code": "906236",
+        "delivery_address": null,
+        "pickup_locations": [
+          {
+            "name": "Main farm",
+            "province": "Mashonaland East",
+            "district": "Goromonzi",
+            "ward": "12",
+            "address_line": null,
+            "latitude": -17.8897,
+            "longitude": 31.2447
+          }
+        ],
+        "accepted_at": "2026-10-13T04:20:54+00:00",
+        "ready_at": null,
+        "dispatched_at": null,
+        "delivered_at": null,
+        "completed_at": null,
+        "dispute": null,
+        "review": null
+      }
+    ],
+    "latest_payment": {
+      "id": "01a1337d-f2d0-7390-bebf-c3415f9fef89",
+      "order_id": "01a1337d-eecf-7003-acb8-6873c7bcbcb7",
+      "status": "succeeded",
+      "method": "mobile_money",
+      "provider": "sandbox",
+      "amount": "2.40",
+      "currency": "USD",
+      "payer_phone": "+263771111111",
+      "next_action": null,
+      "failure_reason": null,
+      "expires_at": "2026-10-13T04:35:54+00:00",
+      "paid_at": "2026-10-13T04:20:56+00:00",
+      "refunded": "0.00",
+      "created_at": "2026-10-13T04:20:54+00:00"
+    },
+    "paid_at": "2026-10-13T04:20:56+00:00",
+    "completed_at": null,
+    "cancelled_at": null,
+    "created_at": "2026-10-13T04:20:53+00:00"
+  }
+}

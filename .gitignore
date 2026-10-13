@@ -1,0 +1,4 @@
+# Operating system and editor clutter; each app has its own .gitignore for build output and secrets.
+.DS_Store
+Thumbs.db
+*.log

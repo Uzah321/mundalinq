@@ -1,0 +1,47 @@
+{
+  "data": {
+    "currency": "USD",
+    "sellers": [
+      {
+        "farm": {
+          "id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+          "name": "Demo Green Acres"
+        },
+        "fulfilment_method": "delivery",
+        "available_methods": [
+          "pickup",
+          "delivery"
+        ],
+        "items": [
+          {
+            "cart_item_id": "01a13383-6fe8-7362-af99-0e757c5af76f",
+            "variant_id": "01a13011-1d18-7266-be68-1299b79731bd",
+            "product_id": "01a13011-1d10-72d6-b8ba-8d603fa9f1e3",
+            "title": "Roma tomatoes",
+            "label": "Crate (about 28 kg)",
+            "unit": {
+              "code": "crate",
+              "name": "crate",
+              "plural_name": "crates"
+            },
+            "thumb_url": "http://192.168.1.216:8000/storage/products/01a13011-1d10-72d6-b8ba-8d603fa9f1e3/01a1315c-9fc0-7075-a158-7bd1f1c18d9d_thumb.webp",
+            "quantity": "1",
+            "unit_price": "30.00",
+            "line_total": "30.00",
+            "available_quantity": "15",
+            "problem": null
+          }
+        ],
+        "subtotal": "30.00",
+        "delivery_fee": "2.00",
+        "total": "32.00",
+        "problems": []
+      }
+    ],
+    "subtotal": "30.00",
+    "delivery_fee": "2.00",
+    "total": "32.00",
+    "problems": [],
+    "can_place_order": true
+  }
+}
