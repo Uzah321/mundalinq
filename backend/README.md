@@ -216,6 +216,25 @@ Sandbox webhooks are signed with `SANDBOX_WEBHOOK_SECRET`: header `X-Sandbox-Sig
 HMAC-SHA256 of "<t>.<raw body>">`, body `{"event_id": "...", "reference": "SBX-..."}`. A webhook only prompts a
 status check with the provider; its body cannot mark anything paid.
 
+**Paynow.** `PAYMENT_PROVIDER=paynow` sends a payment prompt to the buyer's phone through Paynow Express Checkout:
+EcoCash for 077/078 numbers, OneMoney for 071 (other numbers are refused with a clear message). Settings, from a
+**USD** integration in the Paynow dashboard (Receive Payments › New Integration):
+
+```dotenv
+PAYMENT_PROVIDER=paynow
+PAYNOW_INTEGRATION_ID=12345
+PAYNOW_INTEGRATION_KEY=...           # secret: keep it out of Git and chat
+PAYNOW_AUTH_EMAIL=you@yourbusiness   # your Paynow account's email
+PAYNOW_TEST_MODE=true                # until Paynow switches the integration to live
+```
+
+In test mode Paynow takes the same test numbers as the sandbox above, and the auth email must be your Paynow account's;
+live, the buyer's email is sent when they have one. Every message to and from Paynow is checked against the
+integration key's hash. Paynow posts updates to `/api/v1/webhooks/payments/paynow` (the `resulturl`), which must be
+reachable from the internet; those only prompt a check of the payment's poll URL, and the app's status polling
+settles payments even when the result URL is unreachable (e.g. on a development PC). Paynow takes no refunds through
+its API: refunds show as failed under Admin › Money › Refunds for staff to send by hand and record.
+
 **Commission.** `MUNDALINQ_COMMISSION_RATE` (default `0.05`) of each farm's goods value, not of its delivery fee.
 Farms set delivery terms on their profile: `delivery_fee`, `free_delivery_over`, `delivery_radius_km`.
 

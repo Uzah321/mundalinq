@@ -85,6 +85,18 @@ return [
             'delayed_success_seconds' => 30,
             'refunds_fail' => (bool) env('SANDBOX_REFUNDS_FAIL', false),
         ],
+        // PAYMENT_PROVIDER=paynow. The integration (Paynow dashboard › Receive Payments › New Integration)
+        // fixes the currency: use a USD one. Paynow posts updates to /api/v1/webhooks/payments/paynow,
+        // which must be reachable from the internet; without it, payments are still settled by polling.
+        'paynow' => [
+            'integration_id' => env('PAYNOW_INTEGRATION_ID'),
+            'integration_key' => env('PAYNOW_INTEGRATION_KEY'),
+            // Sent with each mobile payment. In test mode it must be the email of your Paynow account.
+            'auth_email' => env('PAYNOW_AUTH_EMAIL'),
+            'test_mode' => (bool) env('PAYNOW_TEST_MODE', true),
+            // Where Paynow sends a buyer back after paying on its own pages.
+            'return_url' => env('PAYNOW_RETURN_URL', env('APP_URL')),
+        ],
     ],
 
     'payouts' => [

@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Contracts\PaymentGateway;
+use App\Services\Payments\Gateways\PaynowGateway;
 use App\Services\Payments\Gateways\SandboxGateway;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -26,6 +27,7 @@ class PaymentGatewayManager
     {
         return match ($provider) {
             'sandbox' => $this->app->environment('production') ? null : $this->app->make(SandboxGateway::class),
+            'paynow' => $this->app->make(PaynowGateway::class),
             default => null,
         };
     }

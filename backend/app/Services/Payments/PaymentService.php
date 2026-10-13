@@ -74,11 +74,11 @@ class PaymentService
             report($e);
             $payment->forceFill([
                 'status' => PaymentStatus::Failed,
-                'failure_reason' => __('The payment provider could not be reached.'),
+                'failure_reason' => $e->buyerMessage ?? __('The payment provider could not be reached.'),
                 'failed_at' => now(),
             ])->save();
 
-            throw new BusinessRuleException(__('We could not start the payment. Please try again.'), 502);
+            throw new BusinessRuleException($e->buyerMessage ?? __('We could not start the payment. Please try again.'), 502);
         }
 
         $payment->forceFill([
