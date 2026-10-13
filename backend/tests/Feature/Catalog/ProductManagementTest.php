@@ -132,6 +132,7 @@ class ProductManagementTest extends TestCase
 
     public function test_renaming_a_live_listing_sends_it_back_to_review_but_other_edits_do_not(): void
     {
+        config(['mundalinq.catalog.require_product_approval' => true]);
         [$farmer, $farm] = $this->farmerWithFarm();
         $product = Product::factory()->listed()->create(['farm_id' => $farm->id]);
         Sanctum::actingAs($farmer);

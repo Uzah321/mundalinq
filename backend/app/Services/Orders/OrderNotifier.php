@@ -2,6 +2,7 @@
 
 namespace App\Services\Orders;
 
+use App\Enums\CancellationReason;
 use App\Enums\NotificationCategory;
 use App\Models\Farm;
 use App\Models\Order;
@@ -43,12 +44,27 @@ class OrderNotifier
         ]));
     }
 
-    public function orderCancelled(Order $order): void
+    /**
+     * @param  list<SellerOrder>  $stillOpen  Farms' parts that were waiting or accepted, so those farms stop preparing.
+     *                                        Farms that declined or let their part expire already know.
+     */
+    public function orderCancelled(Order $order, array $stillOpen = []): void
     {
         $this->toBuyer($order, __('Order :number cancelled', ['number' => $order->number]), __('Order :number was cancelled because :reason', [
             'number' => $order->number,
             'reason' => $order->cancellation_reason->message(),
         ]));
+
+        foreach ($stillOpen as $sellerOrder) {
+            $sellerOrder->loadMissing('farm.members');
+            $number = ['number' => $sellerOrder->number];
+
+            $this->toFarm($sellerOrder, __('Order :number cancelled', $number), match ($order->cancellation_reason) {
+                CancellationReason::BuyerCancelled => __('The buyer cancelled order :number. You do not need to prepare it.', $number),
+                CancellationReason::PaymentOverdue => __('Order :number was cancelled because the buyer did not pay in time. You do not need to prepare it.', $number),
+                default => __('Order :number was cancelled. You do not need to prepare it.', $number),
+            });
+        }
     }
 
     public function orderPaid(Order $order, Payment $payment): void

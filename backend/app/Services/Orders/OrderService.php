@@ -87,17 +87,20 @@ class OrderService
      */
     public function cancel(Order $order, CancellationReason $reason, ?User $actor = null): void
     {
+        $stillOpen = [];
+
         foreach ($order->sellerOrders()->get() as $sellerOrder) {
             if ($sellerOrder->status === SellerOrderStatus::AwaitingConfirmation || $sellerOrder->status === SellerOrderStatus::Accepted) {
                 $this->releaseStock($sellerOrder);
                 $sellerOrder->transitionTo(SellerOrderStatus::Cancelled, $actor, $reason->value);
+                $stillOpen[] = $sellerOrder;
             }
         }
 
         $order->cancellation_reason = $reason;
         $order->transitionTo(OrderStatus::Cancelled, $actor, $reason->value);
 
-        DB::afterCommit(fn () => $this->notifier->orderCancelled($order));
+        DB::afterCommit(fn () => $this->notifier->orderCancelled($order, $stillOpen));
     }
 
     /**

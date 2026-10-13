@@ -58,6 +58,11 @@ class ProductLifecycle
                 throw new BusinessRuleException(__('This listing is not waiting for review.'));
             }
 
+            // The farm may have lost its verification while the listing waited.
+            if (! $product->farm?->isApproved()) {
+                throw new BusinessRuleException(__('This farm is not verified, so its listings cannot go live. Verify the farm first.'), 422);
+            }
+
             $product->forceFill(['reviewed_by' => $reviewer->id, 'reviewed_at' => now()]);
             $this->activate($product);
 

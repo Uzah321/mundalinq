@@ -35,9 +35,9 @@ return [
     ],
 
     'catalog' => [
-        // When true, an admin reviews every listing before buyers can see it. Categories marked
-        // requires_approval (livestock, dairy) are always reviewed, whatever this is set to.
-        'require_product_approval' => (bool) env('MUNDALINQ_REQUIRE_PRODUCT_APPROVAL', true),
+        // Off: a verified farm's listings go on sale as soon as it publishes them. On: an admin reviews
+        // every listing first. Categories marked requires_approval (livestock, dairy) are always reviewed.
+        'require_product_approval' => (bool) env('MUNDALINQ_REQUIRE_PRODUCT_APPROVAL', false),
         // Listings expire so buyers never see stale produce; farmers renew them in one tap.
         'listing_ttl_days' => (int) env('MUNDALINQ_LISTING_TTL_DAYS', 30),
         'max_variants' => 10,

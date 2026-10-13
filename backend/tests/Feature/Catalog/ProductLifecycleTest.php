@@ -43,6 +43,7 @@ class ProductLifecycleTest extends TestCase
 
     public function test_listing_goes_live_after_admin_approval(): void
     {
+        config(['mundalinq.catalog.require_product_approval' => true]);
         [$farmer, $farm] = $this->farmerWithFarm();
         $product = Product::factory()->withVariant()->withImage()->withStock('50')->create(['farm_id' => $farm->id]);
         Sanctum::actingAs($farmer);
@@ -66,9 +67,8 @@ class ProductLifecycleTest extends TestCase
         $this->getJson("/api/v1/products/{$product->id}")->assertOk()->assertJsonMissingPath('data.status');
     }
 
-    public function test_without_global_review_only_sensitive_categories_wait_for_an_admin(): void
+    public function test_by_default_only_sensitive_categories_wait_for_an_admin(): void
     {
-        config(['mundalinq.catalog.require_product_approval' => false]);
         [$farmer, $farm] = $this->farmerWithFarm();
         $livestock = Category::factory()->requiringApproval()->create();
         $goats = Category::factory()->childOf($livestock)->create();
@@ -86,6 +86,7 @@ class ProductLifecycleTest extends TestCase
 
     public function test_rejected_listing_tells_the_farmer_why_and_can_be_republished(): void
     {
+        config(['mundalinq.catalog.require_product_approval' => true]);
         [$farmer, $farm] = $this->farmerWithFarm();
         $product = Product::factory()->withVariant()->withImage()->pendingReview()->create(['farm_id' => $farm->id, 'title' => 'Roma tomatoes']);
         $this->actingAsAdmin();
@@ -127,6 +128,19 @@ class ProductLifecycleTest extends TestCase
         Sanctum::actingAs($farmer);
 
         $this->postJson("/api/v1/admin/products/{$product->id}/approve")->assertForbidden();
+    }
+
+    public function test_approval_returns_422_while_the_farm_is_not_verified(): void
+    {
+        [, $farm] = $this->farmerWithFarm(approved: false);
+        $product = Product::factory()->withVariant()->withImage()->pendingReview()->create(['farm_id' => $farm->id]);
+        $this->actingAsAdmin();
+
+        $this->postJson("/api/v1/admin/products/{$product->id}/approve")
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'This farm is not verified, so its listings cannot go live. Verify the farm first.');
+
+        $this->assertSame(ProductStatus::PendingReview, $product->fresh()->status);
     }
 
     public function test_listings_are_only_reviewed_once(): void

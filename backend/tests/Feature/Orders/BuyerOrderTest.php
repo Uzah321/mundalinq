@@ -57,6 +57,23 @@ class BuyerOrderTest extends TestCase
         $this->postJson("/api/v1/orders/{$order->id}/cancel")->assertConflict();
     }
 
+    public function test_the_farm_is_told_when_the_buyer_cancels(): void
+    {
+        [$farmer, $farm] = $this->farmerWithFarm();
+        $variant = $this->listing($farm);
+        $buyer = $this->buyer();
+        $this->addToCart($buyer, $variant, '2');
+        $order = $this->checkout($buyer);
+        $part = $order->sellerOrders()->sole();
+        Sanctum::actingAs($buyer);
+
+        $this->postJson("/api/v1/orders/{$order->id}/cancel")->assertOk();
+
+        $sms = collect($this->sms->messages)->where('phone', $farmer->phone)->last();
+        $this->assertSame("The buyer cancelled order {$part->number}. You do not need to prepare it.", $sms['message']);
+        $this->assertContains("Order {$part->number} cancelled", $farmer->notifications()->get()->pluck('data.title'));
+    }
+
     public function test_cancelling_waits_for_an_open_payment_and_stops_once_paid(): void
     {
         [, $farm] = $this->farmerWithFarm();

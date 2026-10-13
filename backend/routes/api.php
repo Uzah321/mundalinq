@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\AuditLogController as AdminAuditLogControl
 use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\DisputeController as AdminDisputeController;
+use App\Http\Controllers\Api\V1\Admin\FarmController as AdminFarmController;
 use App\Http\Controllers\Api\V1\Admin\FarmVerificationController as AdminFarmVerificationController;
 use App\Http\Controllers\Api\V1\Admin\FarmVerificationDocumentController as AdminFarmVerificationDocumentController;
 use App\Http\Controllers\Api\V1\Admin\OrderController as AdminOrderController;
@@ -254,6 +255,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::post('refunds/{refund}/retry', [AdminRefundController::class, 'retry'])->name('refunds.retry');
             Route::post('refunds/{refund}/complete', [AdminRefundController::class, 'complete'])->name('refunds.complete');
 
+            Route::get('farms', [AdminFarmController::class, 'index'])->name('farms.index');
             Route::get('farm-verifications', [AdminFarmVerificationController::class, 'index'])->name('farm-verifications.index');
             Route::get('farm-verifications/{verification}', [AdminFarmVerificationController::class, 'show'])->name('farm-verifications.show');
             Route::post('farm-verifications/{verification}/approve', [AdminFarmVerificationController::class, 'approve'])->name('farm-verifications.approve');
