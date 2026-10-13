@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, CalendarDays, Heart, LoaderCircle, MapPin, Minus, Plus, Sprout, Store, Truck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { BadgeCheck, CalendarDays, Heart, LoaderCircle, MapPin, MessageCircle, Minus, Plus, Sprout, Store, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -169,6 +170,9 @@ function ProductDetailBody({
             </span>
           )}
         </DialogDescription>
+        <Link to="/messages/chat" search={{ farm: product.farm.id, product: product.id, name: product.farm.name }} className="ask-farm">
+          <MessageCircle /> Ask {product.farm.name} a question
+        </Link>
       </DialogHeader>
 
       <div className="detail-tags">

@@ -10,33 +10,307 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAuditLogRouteImport } from './routes/admin/audit-log'
+import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
+import { Route as AdminFarmsRouteImport } from './routes/admin/farms'
+import { Route as AdminListingsRouteImport } from './routes/admin/listings'
+import { Route as AdminMoneyRouteImport } from './routes/admin/money'
+import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
+import { Route as MessagesIndexRouteImport } from './routes/messages/index'
+import { Route as MessagesChatRouteImport } from './routes/messages/chat'
+import { Route as OrdersIndexRouteImport } from './routes/orders/index'
+import { Route as OrdersOrderIdRouteImport } from './routes/orders/$orderId'
+import { Route as AdminDisputesIndexRouteImport } from './routes/admin/disputes/index'
+import { Route as AdminDisputesDisputeIdRouteImport } from './routes/admin/disputes/$disputeId'
+import { Route as AdminOrdersIndexRouteImport } from './routes/admin/orders/index'
+import { Route as AdminOrdersOrderIdRouteImport } from './routes/admin/orders/$orderId'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users/$userId'
+import { Route as AdminVerificationsIndexRouteImport } from './routes/admin/verifications/index'
+import { Route as AdminVerificationsVerificationIdRouteImport } from './routes/admin/verifications/$verificationId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFarmsRoute = AdminFarmsRouteImport.update({
+  id: '/farms',
+  path: '/farms',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminListingsRoute = AdminListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMoneyRoute = AdminMoneyRouteImport.update({
+  id: '/money',
+  path: '/money',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminReviewsRoute = AdminReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesChatRoute = MessagesChatRouteImport.update({
+  id: '/messages/chat',
+  path: '/messages/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDisputesIndexRoute = AdminDisputesIndexRouteImport.update({
+  id: '/disputes/',
+  path: '/disputes/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminDisputesDisputeIdRoute = AdminDisputesDisputeIdRouteImport.update({
+  id: '/disputes/$disputeId',
+  path: '/disputes/$disputeId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminOrdersIndexRoute = AdminOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminOrdersOrderIdRoute = AdminOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminVerificationsIndexRoute = AdminVerificationsIndexRouteImport.update({
+  id: '/verifications/',
+  path: '/verifications/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminVerificationsVerificationIdRoute =
+  AdminVerificationsVerificationIdRouteImport.update({
+    id: '/verifications/$verificationId',
+    path: '/verifications/$verificationId',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/checkout': typeof CheckoutRoute
+  '/notifications': typeof NotificationsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/farms': typeof AdminFarmsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/money': typeof AdminMoneyRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/messages/chat': typeof MessagesChatRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
+  '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/verifications/$verificationId': typeof AdminVerificationsVerificationIdRoute
+  '/admin/disputes/': typeof AdminDisputesIndexRoute
+  '/admin/orders/': typeof AdminOrdersIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/verifications/': typeof AdminVerificationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/notifications': typeof NotificationsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/farms': typeof AdminFarmsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/money': typeof AdminMoneyRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/messages/chat': typeof MessagesChatRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/messages': typeof MessagesIndexRoute
+  '/orders': typeof OrdersIndexRoute
+  '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
+  '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/verifications/$verificationId': typeof AdminVerificationsVerificationIdRoute
+  '/admin/disputes': typeof AdminDisputesIndexRoute
+  '/admin/orders': typeof AdminOrdersIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
+  '/admin/verifications': typeof AdminVerificationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/checkout': typeof CheckoutRoute
+  '/notifications': typeof NotificationsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/farms': typeof AdminFarmsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/money': typeof AdminMoneyRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/messages/chat': typeof MessagesChatRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
+  '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/verifications/$verificationId': typeof AdminVerificationsVerificationIdRoute
+  '/admin/disputes/': typeof AdminDisputesIndexRoute
+  '/admin/orders/': typeof AdminOrdersIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/verifications/': typeof AdminVerificationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/checkout'
+    | '/notifications'
+    | '/admin/audit-log'
+    | '/admin/categories'
+    | '/admin/farms'
+    | '/admin/listings'
+    | '/admin/money'
+    | '/admin/reviews'
+    | '/messages/chat'
+    | '/orders/$orderId'
+    | '/admin/'
+    | '/messages/'
+    | '/orders/'
+    | '/admin/disputes/$disputeId'
+    | '/admin/orders/$orderId'
+    | '/admin/users/$userId'
+    | '/admin/verifications/$verificationId'
+    | '/admin/disputes/'
+    | '/admin/orders/'
+    | '/admin/users/'
+    | '/admin/verifications/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/checkout'
+    | '/notifications'
+    | '/admin/audit-log'
+    | '/admin/categories'
+    | '/admin/farms'
+    | '/admin/listings'
+    | '/admin/money'
+    | '/admin/reviews'
+    | '/messages/chat'
+    | '/orders/$orderId'
+    | '/admin'
+    | '/messages'
+    | '/orders'
+    | '/admin/disputes/$disputeId'
+    | '/admin/orders/$orderId'
+    | '/admin/users/$userId'
+    | '/admin/verifications/$verificationId'
+    | '/admin/disputes'
+    | '/admin/orders'
+    | '/admin/users'
+    | '/admin/verifications'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/checkout'
+    | '/notifications'
+    | '/admin/audit-log'
+    | '/admin/categories'
+    | '/admin/farms'
+    | '/admin/listings'
+    | '/admin/money'
+    | '/admin/reviews'
+    | '/messages/chat'
+    | '/orders/$orderId'
+    | '/admin/'
+    | '/messages/'
+    | '/orders/'
+    | '/admin/disputes/$disputeId'
+    | '/admin/orders/$orderId'
+    | '/admin/users/$userId'
+    | '/admin/verifications/$verificationId'
+    | '/admin/disputes/'
+    | '/admin/orders/'
+    | '/admin/users/'
+    | '/admin/verifications/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  CheckoutRoute: typeof CheckoutRoute
+  NotificationsRoute: typeof NotificationsRoute
+  MessagesChatRoute: typeof MessagesChatRoute
+  OrdersOrderIdRoute: typeof OrdersOrderIdRoute
+  MessagesIndexRoute: typeof MessagesIndexRoute
+  OrdersIndexRoute: typeof OrdersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +322,212 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/audit-log': {
+      id: '/admin/audit-log'
+      path: '/audit-log'
+      fullPath: '/admin/audit-log'
+      preLoaderRoute: typeof AdminAuditLogRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/categories': {
+      id: '/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AdminCategoriesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/farms': {
+      id: '/admin/farms'
+      path: '/farms'
+      fullPath: '/admin/farms'
+      preLoaderRoute: typeof AdminFarmsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/listings': {
+      id: '/admin/listings'
+      path: '/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AdminListingsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/money': {
+      id: '/admin/money'
+      path: '/money'
+      fullPath: '/admin/money'
+      preLoaderRoute: typeof AdminMoneyRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/reviews': {
+      id: '/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminReviewsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages/chat': {
+      id: '/messages/chat'
+      path: '/messages/chat'
+      fullPath: '/messages/chat'
+      preLoaderRoute: typeof MessagesChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/disputes/': {
+      id: '/admin/disputes/'
+      path: '/disputes'
+      fullPath: '/admin/disputes/'
+      preLoaderRoute: typeof AdminDisputesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/disputes/$disputeId': {
+      id: '/admin/disputes/$disputeId'
+      path: '/disputes/$disputeId'
+      fullPath: '/admin/disputes/$disputeId'
+      preLoaderRoute: typeof AdminDisputesDisputeIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/orders/': {
+      id: '/admin/orders/'
+      path: '/orders'
+      fullPath: '/admin/orders/'
+      preLoaderRoute: typeof AdminOrdersIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/orders/$orderId': {
+      id: '/admin/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/admin/orders/$orderId'
+      preLoaderRoute: typeof AdminOrdersOrderIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/users/$userId': {
+      id: '/admin/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminUsersUserIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/verifications/': {
+      id: '/admin/verifications/'
+      path: '/verifications'
+      fullPath: '/admin/verifications/'
+      preLoaderRoute: typeof AdminVerificationsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/verifications/$verificationId': {
+      id: '/admin/verifications/$verificationId'
+      path: '/verifications/$verificationId'
+      fullPath: '/admin/verifications/$verificationId'
+      preLoaderRoute: typeof AdminVerificationsVerificationIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminAuditLogRoute: typeof AdminAuditLogRoute
+  AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminFarmsRoute: typeof AdminFarmsRoute
+  AdminListingsRoute: typeof AdminListingsRoute
+  AdminMoneyRoute: typeof AdminMoneyRoute
+  AdminReviewsRoute: typeof AdminReviewsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminDisputesDisputeIdRoute: typeof AdminDisputesDisputeIdRoute
+  AdminOrdersOrderIdRoute: typeof AdminOrdersOrderIdRoute
+  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
+  AdminVerificationsVerificationIdRoute: typeof AdminVerificationsVerificationIdRoute
+  AdminDisputesIndexRoute: typeof AdminDisputesIndexRoute
+  AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+  AdminVerificationsIndexRoute: typeof AdminVerificationsIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAuditLogRoute: AdminAuditLogRoute,
+  AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminFarmsRoute: AdminFarmsRoute,
+  AdminListingsRoute: AdminListingsRoute,
+  AdminMoneyRoute: AdminMoneyRoute,
+  AdminReviewsRoute: AdminReviewsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminDisputesDisputeIdRoute: AdminDisputesDisputeIdRoute,
+  AdminOrdersOrderIdRoute: AdminOrdersOrderIdRoute,
+  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
+  AdminVerificationsVerificationIdRoute: AdminVerificationsVerificationIdRoute,
+  AdminDisputesIndexRoute: AdminDisputesIndexRoute,
+  AdminOrdersIndexRoute: AdminOrdersIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+  AdminVerificationsIndexRoute: AdminVerificationsIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
+  CheckoutRoute: CheckoutRoute,
+  NotificationsRoute: NotificationsRoute,
+  MessagesChatRoute: MessagesChatRoute,
+  OrdersOrderIdRoute: OrdersOrderIdRoute,
+  MessagesIndexRoute: MessagesIndexRoute,
+  OrdersIndexRoute: OrdersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

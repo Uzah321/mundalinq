@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { BadgeCheck, LoaderCircle, LogOut, Phone } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { BadgeCheck, Bell, LoaderCircle, LogOut, MessageCircle, Phone, Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,8 +8,19 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isStaff } from "@/lib/admin";
 import { ApiError, errorMessage } from "@/lib/api";
-import { useRegister, useResendCode, useSession, useSignIn, useSignOut, useVerifyPhone, type RegisterInput } from "@/lib/auth";
+import {
+  useConfirmTwoFactor,
+  useRegister,
+  useResendCode,
+  useSession,
+  useSignIn,
+  useSignOut,
+  useVerifyPhone,
+  type RegisterInput,
+  type TwoFactorChallenge,
+} from "@/lib/auth";
 import { formatPhone, initials } from "@/lib/format";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -85,17 +97,38 @@ function AuthForms({ reason, onSignedIn, onRegistered }: { reason: string | null
   );
 }
 
-function SignInForm({ onSignedIn }: { onSignedIn: () => void }) {
+export function SignInForm({ onSignedIn }: { onSignedIn: () => void }) {
   const signIn = useSignIn();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null);
   const error = signIn.error instanceof ApiError ? signIn.error : null;
 
   // Signing in swaps this form for the account panel, so wait on the promise: callbacks passed to
   // mutate() are dropped once the form unmounts.
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (await signIn.mutateAsync({ login, password }).catch(() => null)) onSignedIn();
+    const response = await signIn.mutateAsync({ login, password }).catch(() => null);
+    if (!response) return;
+    if ("token" in response) onSignedIn();
+    else setChallenge(response);
+  }
+
+  if (challenge) {
+    return (
+      <StaffCodeStep
+        challenge={challenge}
+        onSignedIn={onSignedIn}
+        onResend={async () => {
+          const response = await signIn.mutateAsync({ login, password });
+          if (!("token" in response)) setChallenge(response);
+        }}
+        onBack={() => {
+          signIn.reset();
+          setChallenge(null);
+        }}
+      />
+    );
   }
 
   return (
@@ -112,6 +145,80 @@ function SignInForm({ onSignedIn }: { onSignedIn: () => void }) {
         Sign in
       </Button>
     </form>
+  );
+}
+
+type StaffCodeProps = {
+  challenge: TwoFactorChallenge;
+  onSignedIn: () => void;
+  /** Signs in again, which texts a fresh code. */
+  onResend: () => Promise<void>;
+  onBack: () => void;
+};
+
+/** Second step of a staff sign-in: the code texted to their phone. */
+function StaffCodeStep({ challenge, onSignedIn, onResend, onBack }: StaffCodeProps) {
+  const confirm = useConfirmTwoFactor();
+  const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(60);
+  const [resending, setResending] = useState(false);
+  const expired = confirm.error instanceof ApiError && !!confirm.error.field("challenge");
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
+
+  async function submit(value: string) {
+    if (await confirm.mutateAsync({ challenge: challenge.challenge, code: value }).catch(() => null)) onSignedIn();
+    else setCode("");
+  }
+
+  async function resend() {
+    setResending(true);
+    try {
+      await onResend();
+      confirm.reset();
+      setCode("");
+      setCooldown(60);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setResending(false);
+    }
+  }
+
+  return (
+    <div className="otp-step staff-code">
+      <p className="staff-code-text">{challenge.message} Staff accounts need this extra step.</p>
+      <InputOTP
+        maxLength={6}
+        value={code}
+        onChange={setCode}
+        onComplete={submit}
+        disabled={confirm.isPending || expired}
+        autoFocus
+        inputMode="numeric"
+        aria-label="Sign-in code"
+      >
+        <InputOTPGroup>
+          {Array.from({ length: 6 }, (_, index) => (
+            <InputOTPSlot key={index} index={index} className="otp-slot" />
+          ))}
+        </InputOTPGroup>
+      </InputOTP>
+      {confirm.isPending && <LoaderCircle className="animate-spin" />}
+      {confirm.error && <p className="field-error">{errorMessage(confirm.error)}</p>}
+      <div className="otp-actions">
+        <Button variant="link" onClick={resend} disabled={(cooldown > 0 && !expired) || resending}>
+          {cooldown > 0 && !expired ? `Send a new code in ${cooldown}s` : "Send a new code"}
+        </Button>
+        <Button variant="ghost" onClick={onBack}>
+          Back
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -182,6 +289,23 @@ function RegisterForm({ onRegistered }: { onRegistered: () => void }) {
         Create account
       </Button>
     </form>
+  );
+}
+
+/** Confirming the phone number on its own, e.g. from checkout. */
+export function VerifyPhoneDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { user } = useSession();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="store-dialog account-dialog">
+        {user ? (
+          <VerifyPhone user={user} codeJustSent={false} onDone={() => onOpenChange(false)} />
+        ) : (
+          <DialogTitle className="sr-only">Confirm your number</DialogTitle>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -307,6 +431,23 @@ function AccountPanel({ user, onVerify, onSignedOut }: { user: User; onVerify: (
           </Button>
         </div>
       )}
+
+      <nav className="account-links" aria-label="Your account">
+        <Link to="/orders">
+          <Receipt /> My orders
+        </Link>
+        <Link to="/messages">
+          <MessageCircle /> Messages
+        </Link>
+        <Link to="/notifications">
+          <Bell /> Notifications
+        </Link>
+        {isStaff(user) && (
+          <Link to="/admin">
+            <ShieldCheck /> Admin
+          </Link>
+        )}
+      </nav>
 
       <Button
         variant="outline"

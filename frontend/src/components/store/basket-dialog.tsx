@@ -1,4 +1,5 @@
-import { ShoppingBag, Sprout, TriangleAlert, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, ShoppingBag, Sprout, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { errorMessage } from "@/lib/api";
@@ -113,9 +114,14 @@ export function BasketDialog({ open, onOpenChange, onSignIn, onOpenProduct }: Pr
               <span>Subtotal</span>
               <strong>{formatMoney(cart.subtotal, cart.currency)}</strong>
             </div>
+            <Button asChild className="form-submit">
+              <Link to="/checkout" onClick={() => onOpenChange(false)}>
+                Checkout <ArrowRight />
+              </Link>
+            </Button>
             <p className="prototype-note">
-              Delivery fees depend on each farm and your address, so they're added at checkout. Checkout is coming to
-              the web next; your basket is saved to your account until then.
+              Choose collection or delivery at checkout; delivery fees depend on each farm and your address. Nothing is
+              charged until the farm confirms your order.
             </p>
             <Button
               variant="link"

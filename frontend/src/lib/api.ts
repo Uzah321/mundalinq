@@ -100,6 +100,27 @@ export async function api<T>(path: string, { method = "GET", body, query, signal
   return payload as T;
 }
 
+/** A file behind sign-in (e.g. a verification document), fetched with the token so it can be shown from memory. */
+export async function apiBlob(path: string, signal?: AbortSignal): Promise<Blob> {
+  let response: Response;
+  try {
+    response = await fetch(new URL(API_URL + path, window.location.origin), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal,
+    });
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    throw new ApiError(0, "We couldn't reach MundaLinq. Check your connection and try again.");
+  }
+
+  if (!response.ok) {
+    if (response.status === 401 && token) session.setToken(null);
+    throw new ApiError(response.status, fallbackMessage(response.status));
+  }
+
+  return response.blob();
+}
+
 function fallbackMessage(status: number): string {
   if (status === 429) return "That was a lot of tries. Please wait a minute and try again.";
   if (status >= 500) return "Something went wrong on our side. Please try again shortly.";

@@ -42,12 +42,26 @@ function startSession(queryClient: QueryClient, response: AuthResponse) {
   session.setToken(response.token);
 }
 
+/** Staff sign-ins stop here until the code texted to their phone is confirmed. */
+export type TwoFactorChallenge = { two_factor_required: true; challenge: string; message: string };
+
 export function useSignIn() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (input: { login: string; password: string }) =>
-      api<AuthResponse>("/auth/login", { method: "POST", body: { ...input, device_name: deviceName() } }),
+      api<AuthResponse | TwoFactorChallenge>("/auth/login", { method: "POST", body: { ...input, device_name: deviceName() } }),
+    onSuccess: (response) => {
+      if ("token" in response) startSession(queryClient, response);
+    },
+  });
+}
+
+export function useConfirmTwoFactor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { challenge: string; code: string }) => api<AuthResponse>("/auth/two-factor", { method: "POST", body: input }),
     onSuccess: (response) => startSession(queryClient, response),
   });
 }
