@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { BadgeCheck, Bell, LoaderCircle, LogOut, MessageCircle, Phone, Receipt, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Bell, ClipboardList, LoaderCircle, LogOut, MessageCircle, Phone, Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -435,6 +435,9 @@ function AccountPanel({ user, onVerify, onSignedOut }: { user: User; onVerify: (
       <nav className="account-links" aria-label="Your account">
         <Link to="/orders">
           <Receipt /> My orders
+        </Link>
+        <Link to="/quotes">
+          <ClipboardList /> Requests for quotes
         </Link>
         <Link to="/messages">
           <MessageCircle /> Messages

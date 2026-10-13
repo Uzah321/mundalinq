@@ -125,7 +125,17 @@ class _FarmOrderScreenState extends State<FarmOrderScreen> {
     final order = _order;
 
     return Scaffold(
-      appBar: AppBar(title: Text(order == null ? 'Order' : 'Order ${order.number}')),
+      appBar: AppBar(
+        title: Text(order == null ? 'Order' : 'Order ${order.number}'),
+        actions: [
+          if (order != null)
+            IconButton(
+              tooltip: 'Sale record (PDF)',
+              icon: const Icon(LucideIcons.fileDown),
+              onPressed: () => openDocument(context, context.read<ApiClient>(), '/seller-orders/${order.id}/sale-record-link'),
+            ),
+        ],
+      ),
       body: order == null
           ? Center(
               child: _error == null

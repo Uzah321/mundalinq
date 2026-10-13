@@ -112,6 +112,7 @@ class ProductCard {
     required this.harvestedOn,
     required this.rating,
     required this.isFavourite,
+    this.featured = false,
   });
 
   factory ProductCard.fromJson(Map<String, dynamic> json) {
@@ -132,8 +133,12 @@ class ProductCard {
       harvestedOn: json['last_harvested_on'] as String?,
       rating: Rating.fromJson(json['rating']),
       isFavourite: json['is_favourite'] as bool?,
+      featured: json['featured'] as bool? ?? false,
     );
   }
+
+  /// Paid (or staff-granted) placement: shown first, with a badge.
+  final bool featured;
 
   final String id;
   final String title;
@@ -219,7 +224,10 @@ class ProductDetail {
     required this.deliveryRadiusKm,
     required this.harvestedOn,
     required this.rating,
+    this.featured = false,
   });
+
+  final bool featured;
 
   factory ProductDetail.fromJson(Map<String, dynamic> json) {
     final farm = json['farm'] as Map<String, dynamic>;
@@ -244,6 +252,7 @@ class ProductDetail {
       deliveryRadiusKm: radius == null ? null : num.tryParse('$radius'),
       harvestedOn: json['last_harvested_on'] as String?,
       rating: Rating.fromJson(json['rating']),
+      featured: json['featured'] as bool? ?? false,
     );
   }
 

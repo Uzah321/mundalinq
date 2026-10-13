@@ -22,6 +22,9 @@ enum NotificationCategory: string
 
     case Payouts = 'payouts';
 
+    /** Requests for quotes and the offers farms send. */
+    case Quotes = 'quotes';
+
     /**
      * Categories that are ever sent by SMS, and so have an SMS setting.
      *

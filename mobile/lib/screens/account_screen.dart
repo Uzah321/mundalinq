@@ -15,6 +15,7 @@ import 'farm/farm_form_screen.dart';
 import 'location_sheet.dart';
 import 'messages/conversations_screen.dart';
 import 'orders_screen.dart';
+import 'quotes/quotes_screen.dart';
 import 'server_sheet.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -87,6 +88,12 @@ class AccountScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _Tile(icon: LucideIcons.receipt, title: 'My orders', subtitle: 'Follow, pay for and confirm your orders', onTap: () => push(const OrdersScreen())),
+            _Tile(
+              icon: LucideIcons.clipboardList,
+              title: 'Requests for quotes',
+              subtitle: 'Ask farms for prices on large or regular orders',
+              onTap: () => push(const QuotesScreen()),
+            ),
             _Tile(icon: LucideIcons.messagesSquare, title: 'Messages', subtitle: 'Your conversations with farms', onTap: () => push(const ConversationsScreen())),
             _Tile(icon: LucideIcons.house, title: 'Delivery addresses', subtitle: 'Where farms deliver to you', onTap: () => push(const AddressesScreen())),
           ],
@@ -145,7 +152,7 @@ class AccountSettingsTiles extends StatelessWidget {
     return Column(
       children: [
         _Tile(icon: LucideIcons.userPen, title: 'Your details', subtitle: 'Name and email', onTap: () => push(const ProfileScreen())),
-        _Tile(icon: LucideIcons.bell, title: 'SMS updates', subtitle: 'Choose what also comes by SMS', onTap: () => push(const NotificationSettingsScreen())),
+        _Tile(icon: LucideIcons.bell, title: 'SMS and WhatsApp', subtitle: 'How updates reach you outside the app', onTap: () => push(const NotificationSettingsScreen())),
         _Tile(icon: LucideIcons.smartphone, title: 'Signed-in devices', subtitle: 'Sign out phones you no longer use', onTap: () => push(const DevicesScreen())),
         const _ServerTile(),
       ],

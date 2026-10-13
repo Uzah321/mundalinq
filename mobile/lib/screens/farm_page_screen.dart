@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 
 import '../api/api_client.dart';
 import '../api/farm_models.dart';
+import '../api/server.dart';
 import '../state/product_search.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/photo_picker.dart';
 import '../widgets/product_grid.dart';
 import '../widgets/reviews.dart';
 import 'messages/chat_screen.dart';
@@ -68,7 +70,19 @@ class _FarmPageScreenState extends State<FarmPageScreen> {
   Widget build(BuildContext context) {
     final farm = _farm;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.farmName)),
+      appBar: AppBar(
+        title: Text(widget.farmName),
+        actions: [
+          IconButton(
+            tooltip: 'Share on WhatsApp',
+            icon: const Icon(LucideIcons.share2),
+            onPressed: () => shareOnWhatsApp(
+              context,
+              'Fresh produce from ${widget.farmName} on MundaLinq: ${Server.webUrl}/?q=${Uri.encodeComponent(widget.farmName)}',
+            ),
+          ),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
           SliverPadding(

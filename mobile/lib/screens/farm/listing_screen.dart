@@ -184,6 +184,11 @@ class _ListingScreenState extends State<ListingScreen> {
                   _photos(listing),
                   const SizedBox(height: 16),
                   _status(listing),
+                  // Featuring is paid from the farm's earnings, which only owners handle.
+                  if (listing.status == 'active' && !listing.isExpired && context.watch<FarmController>().farm?.isOwner == true) ...[
+                    const SizedBox(height: 16),
+                    _featuring(listing),
+                  ],
                   const SizedBox(height: 16),
                   _section(
                     'Ways to buy',
@@ -324,6 +329,44 @@ class _ListingScreenState extends State<ListingScreen> {
         ],
       ),
     );
+  }
+
+  Widget _featuring(ManagedListing listing) {
+    final until = listing.featuredUntil;
+    return _section(
+      'Featured',
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            until == null
+                ? 'Featured listings show first in the market with a Featured badge, so more buyers see them.'
+                : 'Featured until ${formatDate(until)}. It shows first in the market with a Featured badge.',
+            style: const TextStyle(fontSize: 13, height: 1.5),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _busy ? null : () => _openFeaturing(listing),
+            icon: const Icon(LucideIcons.sparkles, size: 18),
+            label: Text(until == null ? 'Feature this listing' : 'Add more weeks'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openFeaturing(ManagedListing listing) async {
+    final farm = context.read<FarmController>().farm;
+    if (farm == null) return;
+    final updated = await showModalBottomSheet<ManagedListing>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _FeatureSheet(api: _api, listing: listing, farmId: farm.id),
+    );
+    if (updated != null && mounted) {
+      setState(() => _listing = updated);
+      showMessage(context, 'Featured until ${formatDate(updated.featuredUntil!)}');
+    }
   }
 
   /// Verified farms' listings go straight on sale; some categories (livestock, dairy) are checked first.
@@ -693,6 +736,127 @@ class _StockSheetState extends State<_StockSheet> {
                 : const Text('Add stock'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Choosing how long to feature a listing. The price comes out of earnings that are ready to pay out.
+class _FeatureSheet extends StatefulWidget {
+  const _FeatureSheet({required this.api, required this.listing, required this.farmId});
+
+  final ApiClient api;
+  final ManagedListing listing;
+  final String farmId;
+
+  @override
+  State<_FeatureSheet> createState() => _FeatureSheetState();
+}
+
+class _FeatureSheetState extends State<_FeatureSheet> {
+  String? _pricePerWeek;
+  String _currency = 'USD';
+  List<int> _weeks = const [1, 2, 4];
+  String? _available;
+  int _chosen = 1;
+  String? _error;
+  bool _loading = true;
+  bool _buying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final pricing = (await widget.api.get('/featuring') as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      final earnings = Earnings.fromJson((await widget.api.get('/farms/${widget.farmId}/earnings') as Map<String, dynamic>)['data'] as Map<String, dynamic>);
+      if (!mounted) return;
+      setState(() {
+        _pricePerWeek = pricing['price_per_week'] as String;
+        _currency = pricing['currency'] as String? ?? 'USD';
+        _weeks = (pricing['weeks'] as List).cast<int>();
+        _available = earnings.available;
+      });
+    } catch (error) {
+      if (mounted) setState(() => _error = errorMessage(error));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _price(int weeks) => fromMinor((toMinor(_pricePerWeek ?? '0') ?? 0) * weeks);
+
+  Future<void> _buy() async {
+    setState(() {
+      _buying = true;
+      _error = null;
+    });
+    try {
+      final response = await widget.api.post('/products/${widget.listing.id}/feature', {'weeks': _chosen}) as Map<String, dynamic>;
+      if (!mounted) return;
+      Navigator.pop(context, ManagedListing.fromJson(response['data'] as Map<String, dynamic>));
+    } catch (error) {
+      if (mounted) setState(() => _error = errorMessage(error));
+    } finally {
+      if (mounted) setState(() => _buying = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 4, 20, 20 + MediaQuery.viewInsetsOf(context).bottom),
+        child: _loading
+            ? const Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator()))
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Feature ${widget.listing.title}', style: Brand.display(size: 18)),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'It shows first in the market with a Featured badge. Paid from your earnings that are ready to pay out.',
+                    style: TextStyle(color: Brand.mutedText, height: 1.5),
+                  ),
+                  const SizedBox(height: 14),
+                  if (_pricePerWeek != null)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final weeks in _weeks)
+                          ChoiceChip(
+                            label: Text('$weeks week${weeks == 1 ? '' : 's'} · ${formatMoney(_price(weeks), _currency)}'),
+                            selected: _chosen == weeks,
+                            onSelected: (_) => setState(() => _chosen = weeks),
+                            selectedColor: Brand.mint,
+                            showCheckmark: false,
+                            labelStyle: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700, color: _chosen == weeks ? Brand.green : Brand.ink),
+                            side: BorderSide(color: _chosen == weeks ? Brand.green : Brand.border),
+                          ),
+                      ],
+                    ),
+                  if (_available != null) ...[
+                    const SizedBox(height: 12),
+                    Text('Available earnings: ${formatMoney(_available!, _currency)}', style: const TextStyle(fontSize: 13, color: Brand.mutedText)),
+                  ],
+                  if (_error != null) ...[
+                    const SizedBox(height: 10),
+                    Text(_error!, style: const TextStyle(color: Brand.danger, fontSize: 13, height: 1.4)),
+                  ],
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: _buying || _pricePerWeek == null ? null : _buy,
+                    child: _buying
+                        ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : Text(_pricePerWeek == null ? 'Featuring is unavailable' : 'Feature for $_chosen week${_chosen == 1 ? '' : 's'} · ${formatMoney(_price(_chosen), _currency)}'),
+                  ),
+                ],
+              ),
       ),
     );
   }

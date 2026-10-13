@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../api/api_client.dart';
 import '../../api/farm_models.dart';
 import '../../api/models.dart';
+import '../../api/quote_models.dart';
 import '../../state/farm.dart';
 import '../../state/paged_list.dart';
 import '../../theme.dart';
@@ -16,6 +17,7 @@ import '../../widgets/common.dart';
 import '../order_screen.dart' show StatusChip;
 import 'farm_order_screen.dart';
 import 'farm_shell.dart';
+import 'quote_requests_screen.dart';
 
 /// Filters on the farm's orders; each is one server status.
 const _filters = [
@@ -42,6 +44,9 @@ class _FarmOrdersScreenState extends State<FarmOrdersScreen> {
   final _scroll = ScrollController();
   Timer? _poll;
 
+  /// Open requests for quotes this farm hasn't answered yet.
+  int _newRequests = 0;
+
   String get _farmId => context.read<FarmController>().farm!.id;
 
   Future<Paged<FarmOrder>> _fetch(int page) async => Paged.fromJson(
@@ -53,12 +58,32 @@ class _FarmOrdersScreenState extends State<FarmOrdersScreen> {
   void initState() {
     super.initState();
     _orders.refresh();
+    _countRequests();
     _scroll.addListener(() {
       if (_scroll.position.extentAfter < 400) _orders.loadMore();
     });
     _poll = Timer.periodic(const Duration(seconds: 30), (_) {
       if (!_orders.loading) _orders.refresh();
+      _countRequests();
     });
+  }
+
+  Future<void> _countRequests() async {
+    try {
+      final page = Paged.fromJson(
+        await context.read<ApiClient>().get('/farms/$_farmId/quote-requests') as Map<String, dynamic>,
+        QuoteRequest.fromJson,
+      );
+      final unanswered = page.items.where((request) => request.isOpen && (request.offer == null || request.offer!.status == 'withdrawn')).length;
+      if (mounted && unanswered != _newRequests) setState(() => _newRequests = unanswered);
+    } catch (_) {
+      // The banner is a nudge; the requests screen shows any error.
+    }
+  }
+
+  Future<void> _openRequests() async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => QuoteRequestsScreen(farm: context.read<FarmController>().farm!)));
+    if (mounted) _countRequests();
   }
 
   @override
@@ -93,6 +118,7 @@ class _FarmOrdersScreenState extends State<FarmOrdersScreen> {
       body: Column(
         children: [
           if (farm != null && !farm.verified) const _VerifyBanner(),
+          if (_newRequests > 0) _RequestsBanner(count: _newRequests, onTap: _openRequests),
           SizedBox(
             height: 52,
             child: ListView(
@@ -190,6 +216,39 @@ class _VerifyBanner extends StatelessWidget {
                   style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Brand.harvestText),
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RequestsBanner extends StatelessWidget {
+  const _RequestsBanner({required this.count, required this.onTap});
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Brand.mint,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 16, 10),
+          child: Row(
+            children: [
+              const Icon(LucideIcons.clipboardList, size: 18, color: Brand.green),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  count == 1 ? 'A buyer is asking for your price. Tap to send an offer.' : '$count buyers are asking for prices. Tap to send offers.',
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Brand.green),
+                ),
+              ),
+              const Icon(LucideIcons.chevronRight, size: 18, color: Brand.green),
             ],
           ),
         ),

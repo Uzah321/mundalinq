@@ -121,6 +121,16 @@ export async function apiBlob(path: string, signal?: AbortSignal): Promise<Blob>
   return response.blob();
 }
 
+/** Saves a file the API sends (a PDF receipt, a CSV report) under the given name. */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+  const url = URL.createObjectURL(await apiBlob(path));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function fallbackMessage(status: number): string {
   if (status === 429) return "That was a lot of tries. Please wait a minute and try again.";
   if (status >= 500) return "Something went wrong on our side. Please try again shortly.";

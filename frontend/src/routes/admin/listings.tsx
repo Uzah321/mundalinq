@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BadgeCheck, ChevronRight, ImageOff, X } from "lucide-react";
+import { BadgeCheck, ChevronRight, ImageOff, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog, Fact, Facts, FilterTabs, PageHeading, Pill, QueueList, ReasonDialog, rowsOf } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAdminAction, useAdminList, useDashboard } from "@/lib/admin";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { formatDateTime, formatMoney, formatQuantity, timeAgo } from "@/lib/format";
 import type { ListingStatus, ManagedListing } from "@/lib/types";
 
@@ -93,10 +93,26 @@ function Listings() {
   );
 }
 
-function ListingDialog({ listing, onClose }: { listing: ManagedListing; onClose: () => void }) {
+function ListingDialog({ listing: initial, onClose }: { listing: ManagedListing; onClose: () => void }) {
+  // Kept here so featuring changes show at once; the list behind refreshes too.
+  const [listing, setListing] = useState(initial);
   const [decision, setDecision] = useState<null | "approve" | "reject">(null);
+  const [weeks, setWeeks] = useState(1);
   const approve = useAdminAction(() => api(`/admin/products/${listing.id}/approve`, { method: "POST" }));
   const reject = useAdminAction((reason: string) => api(`/admin/products/${listing.id}/reject`, { method: "POST", body: { reason } }));
+  const feature = useAdminAction((change: { weeks: number } | null) =>
+    api<{ data: ManagedListing }>(`/admin/products/${listing.id}/feature`, change ? { method: "POST", body: change } : { method: "DELETE" }),
+  );
+
+  async function changeFeaturing(change: { weeks: number } | null) {
+    try {
+      const response = await feature.mutateAsync(change);
+      setListing(response.data);
+      toast.success(change ? `Featured for ${change.weeks} week${change.weeks === 1 ? "" : "s"}, free` : "No longer featured");
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
   const images = listing.images ?? [];
   const live = listing.status === "active";
 
@@ -140,8 +156,28 @@ function ListingDialog({ listing, onClose }: { listing: ManagedListing; onClose:
               </Pill>
             </Fact>
             {listing.expires_at && live && <Fact label="Live until">{formatDateTime(listing.expires_at)}</Fact>}
+            {live && <Fact label="Featured">{listing.featured_until ? `Until ${formatDateTime(listing.featured_until)}` : "No"}</Fact>}
             {listing.rejection_reason && <Fact label="Reason given">{listing.rejection_reason}</Fact>}
           </Facts>
+          {live && (
+            <div className="admin-inline-form" aria-label="Featuring">
+              <select className="admin-select" value={weeks} onChange={(event) => setWeeks(Number(event.target.value))} aria-label="How long">
+                {[1, 2, 4].map((option) => (
+                  <option key={option} value={option}>
+                    {option} week{option === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
+              <Button variant="outline" disabled={feature.isPending} onClick={() => changeFeaturing({ weeks })}>
+                <Sparkles /> {listing.featured_until ? "Add free weeks" : "Feature for free"}
+              </Button>
+              {listing.featured_until && (
+                <Button variant="ghost" disabled={feature.isPending} onClick={() => changeFeaturing(null)}>
+                  Stop featuring
+                </Button>
+              )}
+            </div>
+          )}
           {!listing.farm.verified && listing.status === "pending_review" && (
             <div className="admin-outcome rejected">
               <p>{listing.farm.name} isn't verified yet, so this listing can't go live until it is. Check Verifications first.</p>

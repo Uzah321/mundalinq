@@ -26,6 +26,8 @@ class SearchProductsRequest extends FormRequest
             'lng' => ['nullable', 'required_with:lat', 'numeric', 'between:-180,180'],
             'radius_km' => ['nullable', 'numeric', 'between:1,500'],
             'sort' => ['nullable', Rule::in(['newest', 'nearest', 'price_asc', 'price_desc', 'freshest'])],
+            // Only listings currently featured, e.g. for a strip on the home screen.
+            'featured' => ['nullable', 'boolean'],
             'per_page' => ['nullable', 'integer', 'between:1,50'],
         ];
     }

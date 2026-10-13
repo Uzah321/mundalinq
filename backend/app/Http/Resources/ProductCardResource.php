@@ -24,6 +24,7 @@ class ProductCardResource extends JsonResource
             'title' => $this->title,
             'category' => ['name' => $this->category->name, 'slug' => $this->category->slug],
             'quality_grade' => $this->quality_grade,
+            'featured' => $this->isFeatured(),
             'currency' => $this->currency,
             'from_price' => $cheapest ? [
                 'price' => Money::format($cheapest->price_minor),

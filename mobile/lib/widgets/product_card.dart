@@ -180,6 +180,7 @@ class ProductTile extends StatelessWidget {
       );
 
   Widget? _badge() {
+    if (product.featured) return const _Badge(label: 'Featured', warm: true);
     final harvested = product.harvestedOn;
     if (harvested != null && daysSince(harvested) <= 2) {
       return const _Badge(label: 'Fresh pick', warm: true);

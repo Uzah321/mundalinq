@@ -84,6 +84,7 @@ export type ProductSummary = {
   district: string;
   distanceKm?: number;
   harvestedOn: string | null;
+  featured: boolean;
 };
 
 export function summaryFromCard(card: ProductCard): ProductSummary {
@@ -100,6 +101,7 @@ export function summaryFromCard(card: ProductCard): ProductSummary {
     district: card.location.district,
     distanceKm: card.distance_km,
     harvestedOn: card.last_harvested_on,
+    featured: card.featured ?? false,
   };
 }
 
@@ -118,6 +120,7 @@ export function summaryFromDetail(product: ProductDetail): ProductSummary {
     farmName: product.farm.name,
     district: product.location.district,
     harvestedOn: product.last_harvested_on,
+    featured: product.featured ?? false,
   };
 }
 

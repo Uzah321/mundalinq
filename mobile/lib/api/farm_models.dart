@@ -263,7 +263,11 @@ class ManagedListing {
     required this.offersDelivery,
     required this.stock,
     required this.harvestedOn,
+    this.featuredUntil,
   });
+
+  /// Set while the listing is featured.
+  final DateTime? featuredUntil;
 
   factory ManagedListing.fromJson(Map<String, dynamic> json) {
     final category = json['category'] as Map<String, dynamic>;
@@ -289,6 +293,7 @@ class ManagedListing {
       offersDelivery: json['offers_delivery'] as bool? ?? false,
       stock: StockSummary.fromJson(json['stock'] as Map<String, dynamic>),
       harvestedOn: json['last_harvested_on'] as String?,
+      featuredUntil: _time(json['featured_until']),
     );
   }
 

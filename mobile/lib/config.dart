@@ -9,4 +9,7 @@ class AppConfig {
 
   /// Pilot builds against the sandbox payment provider show its test numbers on the payment screen.
   static const sandboxPayments = bool.fromEnvironment('SANDBOX_PAYMENTS');
+
+  /// The website, for links people share (e.g. https://mundalinq.co.zw). Empty: the computer running the API.
+  static const webUrl = String.fromEnvironment('WEB_URL');
 }

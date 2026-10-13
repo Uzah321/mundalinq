@@ -129,9 +129,23 @@ class User extends Authenticatable
     }
 
     /**
-     * Every SMS setting, defaults included.
+     * Where alerts that leave the app go: "sms" (the default) or "whatsapp". The per-category
+     * switches apply to either.
+     */
+    public function alertChannel(): string
+    {
+        return ($this->notification_preferences['channel'] ?? 'sms') === 'whatsapp' ? 'whatsapp' : 'sms';
+    }
+
+    public function prefersWhatsApp(): bool
+    {
+        return $this->alertChannel() === 'whatsapp';
+    }
+
+    /**
+     * Every alert setting, defaults included.
      *
-     * @return array{sms: array<string, bool>}
+     * @return array{sms: array<string, bool>, channel: string}
      */
     public function notificationSettings(): array
     {
@@ -141,6 +155,6 @@ class User extends Authenticatable
             $sms[$category->value] = $this->wantsSms($category);
         }
 
-        return ['sms' => $sms];
+        return ['sms' => $sms, 'channel' => $this->alertChannel()];
     }
 }

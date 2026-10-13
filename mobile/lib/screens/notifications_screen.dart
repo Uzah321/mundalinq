@@ -16,9 +16,11 @@ import 'farm/earnings_screen.dart';
 import 'farm/farm_order_screen.dart';
 import 'farm/farm_reviews_screen.dart';
 import 'farm/listing_screen.dart';
+import 'farm/quote_requests_screen.dart';
 import 'farm/verification_screen.dart';
 import 'messages/conversations_screen.dart';
 import 'order_screen.dart';
+import 'quotes/quotes_screen.dart';
 
 const _icons = {
   'orders': LucideIcons.receipt,
@@ -28,6 +30,7 @@ const _icons = {
   'listings': LucideIcons.package,
   'account': LucideIcons.user,
   'payouts': LucideIcons.wallet,
+  'quotes': LucideIcons.clipboardList,
 };
 
 /// Everything that also goes out by SMS, plus messages, reviews and low-stock alerts. Tapping opens the thing.
@@ -100,7 +103,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (ids['order_id'] != null) return OrderScreen(orderId: ids['order_id']!);
     if (ids['seller_order_id'] != null && ids['farm_id'] != null) return FarmOrderScreen(orderId: ids['seller_order_id']!);
     if (notification.category == 'messages') return ConversationsScreen(asFarm: ids['farm_id'] != null && farm != null);
+    // Offers on the buyer's own request; a farm's alerts about requests also name the farm.
+    if (ids['quote_request_id'] != null && ids['farm_id'] == null) return QuoteScreen(requestId: ids['quote_request_id']!);
     if (farm == null) return null;
+    if (ids['quote_request_id'] != null) return QuoteRequestsScreen(farm: farm);
     if (ids['product_id'] != null) return ListingScreen(listingId: ids['product_id']!);
     if (ids['review_id'] != null) return FarmReviewsScreen(farm: farm);
     if (notification.category == 'payouts') return EarningsScreen(farm: farm);

@@ -54,6 +54,14 @@ class FarmPolicy
     }
 
     /**
+     * Pay for extras, such as featuring a listing, out of the farm's earnings.
+     */
+    public function spendEarnings(User $user, Farm $farm): Response
+    {
+        return $this->memberWithRole($user, $farm, FarmMemberRole::Owner);
+    }
+
+    /**
      * Set where the farm's money is paid.
      */
     public function managePayouts(User $user, Farm $farm): Response

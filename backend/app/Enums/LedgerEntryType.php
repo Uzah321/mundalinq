@@ -18,4 +18,7 @@ enum LedgerEntryType: string
 
     /** Money sent to the farm (negative): it leaves the available balance. */
     case Payout = 'payout';
+
+    /** A farm paying to feature one of its listings. */
+    case Promotion = 'promotion';
 }

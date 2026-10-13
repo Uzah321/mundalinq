@@ -8,7 +8,7 @@ import { SignInForm } from "./account-dialog";
 type Props = {
   title: string;
   /** Where "back" goes; the market by default. */
-  back?: { to: "/" | "/orders" | "/messages"; label: string };
+  back?: { to: "/" | "/orders" | "/messages" | "/quotes"; label: string };
   /** Why signing in is needed, shown to signed-out visitors instead of the page. */
   signInReason: string;
   children: ReactNode;

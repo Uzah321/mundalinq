@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Enums\NotificationCategory;
 use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\WhatsAppChannel;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -33,9 +34,11 @@ class MarketplaceAlert extends Notification
      */
     public function via(User $notifiable): array
     {
-        return $this->sms && $notifiable->wantsSms($this->category)
-            ? ['database', SmsChannel::class]
-            : ['database'];
+        if (! $this->sms || ! $notifiable->wantsSms($this->category)) {
+            return ['database'];
+        }
+
+        return ['database', $notifiable->prefersWhatsApp() ? WhatsAppChannel::class : SmsChannel::class];
     }
 
     public function databaseType(User $notifiable): string

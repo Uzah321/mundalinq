@@ -8,15 +8,21 @@ farmers switch between buying and selling from the Account tab.
 - Basket and favourites (stored on the server), farm pages, messages with farms, notifications
 - Checkout: collection or delivery per farm, delivery addresses pinned with the phone's location, server-priced quote
 - Orders: wait for the farms to confirm, pay by mobile money, show the handover code, confirm receipt, report a
-  problem (with photos) and follow it, rate the farm
-- Account: profile, addresses, which updates also come by SMS, signed-in devices, password reset, server address.
-  Staff accounts confirm sign-in with a code texted to their phone; reviewing farms happens on the website (`/admin`)
+  problem (with photos) and follow it, rate the farm, open the receipt as a PDF
+- Requests for quotes (Account, or the card on Home): ask farms for a price on a large or regular order, compare
+  their offers, accept one (it becomes an order), order again at the same price
+- Share a listing or a farm on WhatsApp
+- Account: profile, addresses, which updates also come by SMS (or by WhatsApp instead), signed-in devices, password
+  reset, server address. Staff accounts confirm sign-in with a code texted to their phone; reviewing farms happens
+  on the website (`/admin`)
 
 **Farmers** ("Sell on MundaLinq" creates a farm; "Switch to selling" opens it)
 - Orders: new orders to accept (supplying less if short) or decline, mark ready, send out, hand over with the
-  buyer's 6-digit code; call or message the buyer, open the delivery address in Maps
+  buyer's 6-digit code; call or message the buyer, open the delivery address in Maps; the sale record as a PDF
+- Requests for quotes: a bar on Orders when buyers nearby ask for prices on what the farm sells (also Farm ›
+  Requests for quotes); send an offer from one of the farm's listings, change or withdraw it
 - Listings: create with a first selling option and opening stock, photos from camera or gallery, more ways to buy
-  (crates, bags…), add stock, publish, pause, renew, delete
+  (crates, bags…), add stock, publish, pause, renew, delete; owners can feature a live listing, paid from earnings
 - Farm: verification with ID photos (an unverified farm's draft listings point there instead of offering
   Publish), earnings and payouts, mobile money payout account, last-30-day sales,
   reviews with replies, farm details; several farms per account
@@ -72,7 +78,8 @@ flutter build apk --release --dart-define=API_BASE_URL=http://192.168.1.216:8000
 ```
 
 `SANDBOX_PAYMENTS=true` shows the sandbox's test numbers on the payment screen (0771111111 approves; see the backend
-README). Leave it out for builds that use a real payment provider.
+README). Leave it out for builds that use a real payment provider. `WEB_URL` (e.g. `https://mundalinq.co.zw`) is the
+website address put in links shared on WhatsApp; without it they point at port 5173 on the API's computer.
 
 The APK is `build/app/outputs/flutter-apk/app-release.apk` (about 54 MB, runs on any Android 7.0+ phone). Send it to
 a phone (WhatsApp, email, USB), open it and allow installing from that source when Android asks.
@@ -147,6 +154,10 @@ tap **Switch to selling** and accept it under Orders. Pay on the buyer's phone w
 the farmer's, and enter the buyer's handover code to complete it. The demo farmer owns every demo farm; switch farm
 by tapping its name at the top.
 
+For a request for quotes, post one as the buyer for something a demo farm sells in its province, e.g. cabbages in
+Mashonaland East (Domboshava Market Garden). The farmer sees the bar on that farm's Orders tab, opens the request and
+sends an offer; the buyer accepts it under Account › Requests for quotes, and it continues as an ordinary order.
+
 ## Layout
 
 - `lib/api`: HTTP client and the API's data shapes
@@ -154,6 +165,8 @@ by tapping its name at the top.
   (ChangeNotifiers via `provider`)
 - `lib/screens`: the market's tabs (Home, Browse, Favourites, Basket, Account), checkout, orders and payment,
   messages, notifications, problem reports and account settings
-- `lib/screens/farm`: the farm's tabs (Orders, Listings, Messages, Farm), listings, verification, earnings
+- `lib/screens/farm`: the farm's tabs (Orders, Listings, Messages, Farm), listings, verification, earnings, and
+  the requests for quotes a farm can answer
+- `lib/screens/quotes`: the buyer's requests for quotes, the new-request form and accepting an offer
 - `lib/widgets`: product card and grid, banner, category strip, shared bits
 - `lib/util/format.dart`: money and quantity arithmetic in whole cents and thousandths, as on the web and server

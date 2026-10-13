@@ -19,11 +19,15 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
 import { Route as AdminFarmsRouteImport } from './routes/admin/farms'
 import { Route as AdminListingsRouteImport } from './routes/admin/listings'
 import { Route as AdminMoneyRouteImport } from './routes/admin/money'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
 import { Route as MessagesIndexRouteImport } from './routes/messages/index'
 import { Route as MessagesChatRouteImport } from './routes/messages/chat'
 import { Route as OrdersIndexRouteImport } from './routes/orders/index'
 import { Route as OrdersOrderIdRouteImport } from './routes/orders/$orderId'
+import { Route as QuotesIndexRouteImport } from './routes/quotes/index'
+import { Route as QuotesRequestIdRouteImport } from './routes/quotes/$requestId'
+import { Route as QuotesNewRouteImport } from './routes/quotes/new'
 import { Route as AdminDisputesIndexRouteImport } from './routes/admin/disputes/index'
 import { Route as AdminDisputesDisputeIdRouteImport } from './routes/admin/disputes/$disputeId'
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin/orders/index'
@@ -83,6 +87,11 @@ const AdminMoneyRoute = AdminMoneyRouteImport.update({
   path: '/money',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminReviewsRoute = AdminReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -106,6 +115,21 @@ const OrdersIndexRoute = OrdersIndexRouteImport.update({
 const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
   id: '/orders/$orderId',
   path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuotesIndexRoute = QuotesIndexRouteImport.update({
+  id: '/quotes/',
+  path: '/quotes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuotesRequestIdRoute = QuotesRequestIdRouteImport.update({
+  id: '/quotes/$requestId',
+  path: '/quotes/$requestId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuotesNewRoute = QuotesNewRouteImport.update({
+  id: '/quotes/new',
+  path: '/quotes/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDisputesIndexRoute = AdminDisputesIndexRouteImport.update({
@@ -160,12 +184,16 @@ export interface FileRoutesByFullPath {
   '/admin/farms': typeof AdminFarmsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/money': typeof AdminMoneyRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/messages/chat': typeof MessagesChatRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/quotes/$requestId': typeof QuotesRequestIdRoute
+  '/quotes/new': typeof QuotesNewRoute
   '/admin/': typeof AdminIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/orders/': typeof OrdersIndexRoute
+  '/quotes/': typeof QuotesIndexRoute
   '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
   '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -184,12 +212,16 @@ export interface FileRoutesByTo {
   '/admin/farms': typeof AdminFarmsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/money': typeof AdminMoneyRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/messages/chat': typeof MessagesChatRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/quotes/$requestId': typeof QuotesRequestIdRoute
+  '/quotes/new': typeof QuotesNewRoute
   '/admin': typeof AdminIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/orders': typeof OrdersIndexRoute
+  '/quotes': typeof QuotesIndexRoute
   '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
   '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -210,12 +242,16 @@ export interface FileRoutesById {
   '/admin/farms': typeof AdminFarmsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/money': typeof AdminMoneyRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/messages/chat': typeof MessagesChatRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/quotes/$requestId': typeof QuotesRequestIdRoute
+  '/quotes/new': typeof QuotesNewRoute
   '/admin/': typeof AdminIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/orders/': typeof OrdersIndexRoute
+  '/quotes/': typeof QuotesIndexRoute
   '/admin/disputes/$disputeId': typeof AdminDisputesDisputeIdRoute
   '/admin/orders/$orderId': typeof AdminOrdersOrderIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
@@ -237,12 +273,16 @@ export interface FileRouteTypes {
     | '/admin/farms'
     | '/admin/listings'
     | '/admin/money'
+    | '/admin/reports'
     | '/admin/reviews'
     | '/messages/chat'
     | '/orders/$orderId'
+    | '/quotes/$requestId'
+    | '/quotes/new'
     | '/admin/'
     | '/messages/'
     | '/orders/'
+    | '/quotes/'
     | '/admin/disputes/$disputeId'
     | '/admin/orders/$orderId'
     | '/admin/users/$userId'
@@ -261,12 +301,16 @@ export interface FileRouteTypes {
     | '/admin/farms'
     | '/admin/listings'
     | '/admin/money'
+    | '/admin/reports'
     | '/admin/reviews'
     | '/messages/chat'
     | '/orders/$orderId'
+    | '/quotes/$requestId'
+    | '/quotes/new'
     | '/admin'
     | '/messages'
     | '/orders'
+    | '/quotes'
     | '/admin/disputes/$disputeId'
     | '/admin/orders/$orderId'
     | '/admin/users/$userId'
@@ -286,12 +330,16 @@ export interface FileRouteTypes {
     | '/admin/farms'
     | '/admin/listings'
     | '/admin/money'
+    | '/admin/reports'
     | '/admin/reviews'
     | '/messages/chat'
     | '/orders/$orderId'
+    | '/quotes/$requestId'
+    | '/quotes/new'
     | '/admin/'
     | '/messages/'
     | '/orders/'
+    | '/quotes/'
     | '/admin/disputes/$disputeId'
     | '/admin/orders/$orderId'
     | '/admin/users/$userId'
@@ -309,8 +357,11 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   MessagesChatRoute: typeof MessagesChatRoute
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
+  QuotesRequestIdRoute: typeof QuotesRequestIdRoute
+  QuotesNewRoute: typeof QuotesNewRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
+  QuotesIndexRoute: typeof QuotesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -385,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMoneyRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/reviews': {
       id: '/admin/reviews'
       path: '/reviews'
@@ -418,6 +476,27 @@ declare module '@tanstack/react-router' {
       path: '/orders/$orderId'
       fullPath: '/orders/$orderId'
       preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotes/': {
+      id: '/quotes/'
+      path: '/quotes'
+      fullPath: '/quotes/'
+      preLoaderRoute: typeof QuotesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotes/$requestId': {
+      id: '/quotes/$requestId'
+      path: '/quotes/$requestId'
+      fullPath: '/quotes/$requestId'
+      preLoaderRoute: typeof QuotesRequestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotes/new': {
+      id: '/quotes/new'
+      path: '/quotes/new'
+      fullPath: '/quotes/new'
+      preLoaderRoute: typeof QuotesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/disputes/': {
@@ -485,6 +564,7 @@ interface AdminRouteRouteChildren {
   AdminFarmsRoute: typeof AdminFarmsRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminMoneyRoute: typeof AdminMoneyRoute
+  AdminReportsRoute: typeof AdminReportsRoute
   AdminReviewsRoute: typeof AdminReviewsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminDisputesDisputeIdRoute: typeof AdminDisputesDisputeIdRoute
@@ -503,6 +583,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminFarmsRoute: AdminFarmsRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminMoneyRoute: AdminMoneyRoute,
+  AdminReportsRoute: AdminReportsRoute,
   AdminReviewsRoute: AdminReviewsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminDisputesDisputeIdRoute: AdminDisputesDisputeIdRoute,
@@ -526,8 +607,11 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   MessagesChatRoute: MessagesChatRoute,
   OrdersOrderIdRoute: OrdersOrderIdRoute,
+  QuotesRequestIdRoute: QuotesRequestIdRoute,
+  QuotesNewRoute: QuotesNewRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
+  QuotesIndexRoute: QuotesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

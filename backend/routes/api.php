@@ -12,7 +12,9 @@ use App\Http\Controllers\Api\V1\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\V1\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\PayoutController as AdminPayoutController;
 use App\Http\Controllers\Api\V1\Admin\ProductModerationController as AdminProductModerationController;
+use App\Http\Controllers\Api\V1\Admin\ProductPromotionController as AdminProductPromotionController;
 use App\Http\Controllers\Api\V1\Admin\RefundController as AdminRefundController;
+use App\Http\Controllers\Api\V1\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\Api\V1\Catalog\FavouriteController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductImageController;
 use App\Http\Controllers\Api\V1\Catalog\ProductLifecycleController;
+use App\Http\Controllers\Api\V1\Catalog\ProductPromotionController;
 use App\Http\Controllers\Api\V1\Catalog\ProductVariantController;
 use App\Http\Controllers\Api\V1\Catalog\UnitController;
 use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
@@ -48,9 +51,13 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Orders\FarmOrderController;
 use App\Http\Controllers\Api\V1\Orders\OrderController;
+use App\Http\Controllers\Api\V1\Orders\OrderDocumentController;
 use App\Http\Controllers\Api\V1\Orders\SellerOrderController;
 use App\Http\Controllers\Api\V1\Payments\PaymentController;
 use App\Http\Controllers\Api\V1\Payments\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\Quotes\FarmQuoteRequestController;
+use App\Http\Controllers\Api\V1\Quotes\QuoteOfferController;
+use App\Http\Controllers\Api\V1\Quotes\QuoteRequestController;
 use App\Http\Controllers\Api\V1\Reviews\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -98,6 +105,12 @@ Route::prefix('v1')->name('v1.')->group(function () {
     // Payment providers; authenticated by signature, not by user.
     Route::post('webhooks/payments/{provider}', PaymentWebhookController::class)->name('webhooks.payments');
 
+    // PDFs opened in a phone's browser, which has no sign-in: the link itself is signed and short-lived.
+    Route::middleware('signed:relative')->group(function () {
+        Route::get('documents/orders/{order}/receipt', [OrderDocumentController::class, 'signedReceipt'])->name('documents.receipt');
+        Route::get('documents/seller-orders/{sellerOrder}/sale', [OrderDocumentController::class, 'signedFarmSale'])->name('documents.farm-sale');
+    });
+
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('me', [MeController::class, 'show'])->name('me.show');
         Route::patch('me', [MeController::class, 'update'])->name('me.update');
@@ -129,9 +142,25 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::delete('cart/items/{item}', [CartItemController::class, 'destroy'])->name('cart.items.destroy');
         Route::post('checkout/quote', [CheckoutController::class, 'quote'])->name('checkout.quote');
 
+        // Requests for quotes: buyers ask, matching farms offer, the buyer's choice becomes an order.
+        Route::get('quote-requests', [QuoteRequestController::class, 'index'])->name('quote-requests.index');
+        Route::post('quote-requests', [QuoteRequestController::class, 'store'])->middleware('verified.phone')->name('quote-requests.store');
+        Route::get('quote-requests/{quoteRequest}', [QuoteRequestController::class, 'show'])->name('quote-requests.show');
+        Route::post('quote-requests/{quoteRequest}/close', [QuoteRequestController::class, 'close'])->name('quote-requests.close');
+        Route::post('quote-requests/{quoteRequest}/offers', [QuoteOfferController::class, 'store'])->name('quote-requests.offers.store');
+        Route::get('farms/{farm}/quote-requests', [FarmQuoteRequestController::class, 'index'])->name('farms.quote-requests.index');
+        Route::delete('quote-offers/{quoteOffer}', [QuoteOfferController::class, 'destroy'])->name('quote-offers.destroy');
+        Route::post('quote-offers/{quoteOffer}/decline', [QuoteOfferController::class, 'decline'])->name('quote-offers.decline');
+        Route::post('quote-offers/{quoteOffer}/accept', [QuoteOfferController::class, 'accept'])->middleware('verified.phone')->name('quote-offers.accept');
+        Route::post('quote-offers/{quoteOffer}/order', [QuoteOfferController::class, 'order'])->middleware('verified.phone')->name('quote-offers.order');
+
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::post('orders', [OrderController::class, 'store'])->middleware('verified.phone')->name('orders.store');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('orders/{order}/receipt', [OrderDocumentController::class, 'receipt'])->name('orders.receipt');
+        Route::get('orders/{order}/receipt-link', [OrderDocumentController::class, 'receiptLink'])->name('orders.receipt-link');
+        Route::get('seller-orders/{sellerOrder}/sale-record', [OrderDocumentController::class, 'farmSale'])->name('seller-orders.sale-record');
+        Route::get('seller-orders/{sellerOrder}/sale-record-link', [OrderDocumentController::class, 'farmSaleLink'])->name('seller-orders.sale-record-link');
         Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
         Route::post('payments/initiate', [PaymentController::class, 'initiate'])
@@ -207,6 +236,8 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::post('products/{product}/pause', [ProductLifecycleController::class, 'pause'])->name('products.pause');
         Route::post('products/{product}/resume', [ProductLifecycleController::class, 'resume'])->name('products.resume');
         Route::post('products/{product}/renew', [ProductLifecycleController::class, 'renew'])->name('products.renew');
+        Route::get('featuring', [ProductPromotionController::class, 'pricing'])->name('featuring.pricing');
+        Route::post('products/{product}/feature', [ProductPromotionController::class, 'store'])->name('products.feature');
 
         Route::scopeBindings()->group(function () {
             Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');
@@ -243,6 +274,8 @@ Route::prefix('v1')->name('v1.')->group(function () {
 
         Route::prefix('admin')->name('admin.')->middleware('role:admin,super_admin')->group(function () {
             Route::get('dashboard', [AdminDashboardController::class, 'show'])->name('dashboard');
+            Route::get('reports/monthly', [AdminReportController::class, 'monthly'])->name('reports.monthly');
+            Route::get('reports/farms', [AdminReportController::class, 'farms'])->name('reports.farms');
             Route::post('users/{user}/suspend', [AdminUserController::class, 'suspend'])->name('users.suspend');
             Route::post('users/{user}/reactivate', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
 
@@ -267,6 +300,8 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::get('products', [AdminProductModerationController::class, 'index'])->name('products.index');
             Route::post('products/{product}/approve', [AdminProductModerationController::class, 'approve'])->name('products.approve');
             Route::post('products/{product}/reject', [AdminProductModerationController::class, 'reject'])->name('products.reject');
+            Route::post('products/{product}/feature', [AdminProductPromotionController::class, 'store'])->name('products.feature');
+            Route::delete('products/{product}/feature', [AdminProductPromotionController::class, 'destroy'])->name('products.unfeature');
 
             Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
             Route::post('categories', [AdminCategoryController::class, 'store'])->name('categories.store');

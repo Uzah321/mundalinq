@@ -161,6 +161,24 @@ export function useNotifications() {
   });
 }
 
+export type AlertSettings = { sms: Record<string, boolean>; channel: "sms" | "whatsapp" };
+
+/** How alerts reach people outside the app: by SMS or WhatsApp, and for which kinds of update. */
+export function useAlertSettings() {
+  const queryClient = useQueryClient();
+  const key = [...notificationsKey, "settings"];
+  const settings = useQuery({
+    queryKey: key,
+    queryFn: ({ signal }) => api<{ data: AlertSettings }>("/me/notification-preferences", { signal }).then((response) => response.data),
+  });
+  const save = useMutation({
+    mutationFn: (change: Partial<AlertSettings>) =>
+      api<{ data: AlertSettings }>("/me/notification-preferences", { method: "PATCH", body: change }).then((response) => response.data),
+    onSuccess: (data) => queryClient.setQueryData(key, data),
+  });
+  return { settings, save };
+}
+
 export function useNotificationActions() {
   const queryClient = useQueryClient();
   const refresh = () => queryClient.invalidateQueries({ queryKey: notificationsKey });

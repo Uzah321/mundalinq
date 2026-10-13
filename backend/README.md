@@ -57,16 +57,29 @@ turns this off (for local tooling only).
 ## Notifications
 
 Everything that used to be an SMS also lands in an in-app inbox, and a few more things do (new messages, reviews,
-low stock). Each notification has a `category`: `orders, messages, reviews, disputes, listings, account, payouts`.
-Users can turn off the SMS copy per category; the inbox always gets everything, and security codes are always sent.
-SMS for messages go out only for the first unread message in a conversation.
+low stock). Each notification has a `category`: `orders, messages, reviews, disputes, listings, account, payouts,
+quotes`. Users can turn off the SMS copy per category; the inbox always gets everything, and security codes are
+always sent. SMS for messages go out only for the first unread message in a conversation.
+
+**WhatsApp.** A user can have those alerts come by WhatsApp instead of SMS (`channel: whatsapp`); security codes
+still come by SMS. If a WhatsApp message can't be sent, the alert goes by SMS instead. `WHATSAPP_DRIVER=log` (the
+default) only writes them to the log. `cloud` sends through Meta's WhatsApp Cloud API, which needs a verified
+WhatsApp Business account, a phone number, and an approved message template with one body variable:
+
+```dotenv
+WHATSAPP_DRIVER=cloud
+WHATSAPP_TOKEN=...                  # secret: keep it out of Git and chat
+WHATSAPP_PHONE_NUMBER_ID=...
+WHATSAPP_TEMPLATE=mundalinq_alert   # body: "{{1}}"
+WHATSAPP_TEMPLATE_LANGUAGE=en
+```
 
 | Method | Endpoint | Notes |
 |---|---|---|
 | GET | `/api/v1/me/notifications` | Newest first; `unread=1` for unread only. `meta.unread_count` is the badge. `context` holds ids such as `order_id` |
 | POST | `/api/v1/me/notifications/{id}/read` | |
 | POST | `/api/v1/me/notifications/read-all` | |
-| GET / PATCH | `/api/v1/me/notification-preferences` | `{"sms": {"messages": false}}`; categories left out keep their setting |
+| GET / PATCH | `/api/v1/me/notification-preferences` | `{"sms": {"messages": false}}` and/or `{"channel": "sms\|whatsapp"}`; categories left out keep their setting |
 
 ## Farms and verification
 
@@ -107,14 +120,20 @@ converted automatically (1000); a crate needs its contents (`base_quantity: "28"
 `price_tiers`, each starting at a larger quantity and cheaper than the one before.
 
 **Lifecycle.** New listings are drafts. `publish` needs a verified farm, at least one photo and one active variant.
-It goes to admin review when `MUNDALINQ_REQUIRE_PRODUCT_APPROVAL=true` (default) or the category requires it
-(livestock, dairy); otherwise straight live. Live listings expire after `MUNDALINQ_LISTING_TTL_DAYS` (30) unless
-renewed. Renaming or recategorising a live listing sends it back to review; other edits do not.
+It then goes straight live, except in categories that require review (livestock, dairy), which wait for an admin.
+`MUNDALINQ_REQUIRE_PRODUCT_APPROVAL=true` sends every listing to review. Live listings expire after
+`MUNDALINQ_LISTING_TTL_DAYS` (30) unless renewed. Where review applies, renaming or recategorising a live listing
+sends it back to review; other edits do not.
+
+**Featured listings.** A farm owner can feature a live listing for 1, 2 or 4 weeks at
+`MUNDALINQ_FEATURE_PRICE_PER_WEEK` (default `1.00`) a week, paid from earnings that are ready to pay out (a
+`promotion` entry in the farm's ledger). Featuring again adds the weeks on to the end. Featured listings come
+first in the default search order and carry `featured: true`; staff can feature any listing for free or stop it.
 
 | Method | Endpoint | Who |
 |---|---|---|
 | GET | `/api/v1/categories`, `/api/v1/units` | Public |
-| GET | `/api/v1/products` | Public search. `q` (title, description, category or farm name), `category (slug), farm_id, province, district, grade, min_price, max_price, fulfilment (pickup\|delivery), lat, lng, radius_km, sort (newest\|nearest\|price_asc\|price_desc\|freshest), per_page`. Signed-in buyers also get `is_favourite` |
+| GET | `/api/v1/products` | Public search. `q` (title, description, category or farm name), `category (slug), farm_id, province, district, grade, min_price, max_price, fulfilment (pickup\|delivery), featured, lat, lng, radius_km, sort (newest\|nearest\|price_asc\|price_desc\|freshest), per_page`. Signed-in buyers also get `is_favourite` |
 | GET | `/api/v1/products/{id}` | Public if live; farm members and staff also see status and stock |
 | GET | `/api/v1/farms/{id}/products` | Farm members: every status. Filters `status, low_stock` |
 | POST | `/api/v1/products` | Farm member. `farm_id, category_id, title, stock_unit, variants[], initial_stock?` and optional details |
@@ -127,8 +146,11 @@ renewed. Renaming or recategorising a live listing sends it back to review; othe
 | GET / POST | `/api/v1/products/{id}/batches` | Stock received: `quantity, harvested_on?, best_before?, notes?` |
 | POST | `/api/v1/inventory/adjustments` | `batch_id, direction (increase\|decrease), quantity, reason, note?` |
 | GET | `/api/v1/products/{id}/stock-movements` | Stock ledger, newest first |
+| GET | `/api/v1/featuring` | Price per week and the lengths offered |
+| POST | `/api/v1/products/{id}/feature` | Farm owner: `weeks` (1, 2 or 4). 422 if the available earnings don't cover it |
 | GET | `/api/v1/admin/products` | Admin review queue (`status=pending_review` by default) |
 | POST | `/api/v1/admin/products/{id}/approve` \| `reject` | `reason` on reject (SMS to the farmer); reject also takes down live listings |
+| POST / DELETE | `/api/v1/admin/products/{id}/feature` | Admin: feature for free (`weeks`), or stop featuring |
 | GET / POST / PATCH | `/api/v1/admin/categories[/{id}]` | Admin. Two levels; deactivate instead of delete |
 
 Every stock change locks the product row, updates the batch and the product total together and appends to
@@ -197,6 +219,9 @@ An order is only marked paid after the payment provider confirms it.
 | POST | `/api/v1/seller-orders/{id}/handover` | `code` from the buyer (pickup: from ready; delivery: from dispatched) |
 | POST | `/api/v1/seller-orders/{id}/confirm-receipt` | Buyer; makes the sale final at once |
 | GET | `/api/v1/farms/{id}/earnings` | Owner only: pending and available earnings, recent ledger entries |
+| GET | `/api/v1/orders/{id}/receipt` | PDF for the buyer (and staff): a receipt once paid, otherwise an order summary |
+| GET | `/api/v1/seller-orders/{id}/sale-record` | PDF for the farm: the sale, MundaLinq's fee, any refund and what the farm receives |
+| GET | `/api/v1/orders/{id}/receipt-link`, `/api/v1/seller-orders/{id}/sale-record-link` | `{path, expires_in_minutes}`: a signed link (15 minutes) that opens the same PDF without a token, for phone browsers |
 | POST | `/api/v1/payments/initiate` | `order_id, method: mobile_money, phone`. A pending prompt is reused, never duplicated |
 | GET | `/api/v1/payments/{id}/status` | Poll while the buyer approves; each call asks the provider |
 | POST | `/api/v1/webhooks/payments/{provider}` | For providers; signature-checked, replay-safe |
@@ -237,6 +262,32 @@ its API: refunds show as failed under Admin › Money › Refunds for staff to s
 
 **Commission.** `MUNDALINQ_COMMISSION_RATE` (default `0.05`) of each farm's goods value, not of its delivery fee.
 Farms set delivery terms on their profile: `delivery_fee`, `free_delivery_over`, `delivery_radius_km`.
+
+## Requests for quotes
+
+For large or regular orders ("200 kg of tomatoes every Friday"). A buyer posts what they need: category, quantity
+and unit, how often (`one_off, weekly, fortnightly, monthly`), when it's first needed, collection or delivery, and
+where. Verified farms in that province with a live listing in the category (or one above or below it) are told in
+the app and by SMS; the response's `meta.farms_told` says how many. Farms see the buyer's first name only.
+
+Each farm sends one offer: one of its live listings' selling options, a price per unit, a quantity, collection or
+delivery (as the buyer asked) with a delivery fee, an optional message and, for repeat requests, the last day the
+price holds. A farm can change its offer or withdraw it until the buyer decides. The buyer compares offers (cheapest
+total first) and accepts one: in one step the others are declined and an ordinary order is placed at the agreed
+price, which the farm confirms and the buyer pays for as usual. Accepted offers on repeat requests can be ordered
+again at the same price until `valid_until`. Requests stop taking offers after `open_days` (default 7) or when the
+buyer closes them.
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET / POST | `/api/v1/quote-requests` | The buyer's requests. Post (verified phone): `category_id, title, quantity, unit, frequency, needed_by, fulfilment (pickup\|delivery\|either), province, district, notes?, open_days?` |
+| GET | `/api/v1/quote-requests/{id}` | The buyer (or staff): the request with its offers |
+| POST | `/api/v1/quote-requests/{id}/close` | Buyer: stop taking offers; waiting offers are declined |
+| GET | `/api/v1/farms/{id}/quote-requests` | Farm members: open requests the farm can answer, and those it has answered (with its own offer only) |
+| POST | `/api/v1/quote-requests/{id}/offers` | Farm member: `farm_id, product_variant_id, unit_price, quantity, fulfilment, delivery_fee?, message?, valid_until?`. 201 new, 200 changed |
+| DELETE | `/api/v1/quote-offers/{id}` | Farm member: withdraw a waiting offer |
+| POST | `/api/v1/quote-offers/{id}/decline` | Buyer |
+| POST | `/api/v1/quote-offers/{id}/accept` \| `order` | Buyer (verified phone): `address_id?` (needed for delivery), `note?`. Returns the new order (201); `order` repeats an accepted offer |
 
 ## Problems and refunds
 
@@ -289,6 +340,10 @@ exceed the available balance.
 | GET | `/api/v1/admin/payouts/due` | Farms with an available balance, largest first, with their payout account |
 | POST | `/api/v1/admin/farms/{id}/payouts` | `amount, reference, note?` |
 | GET | `/api/v1/admin/payouts` | History (`farm_id` filter) |
+| GET | `/api/v1/admin/reports/monthly` | Admin. `year`, `format=json\|csv`: per month, orders placed and completed, sales, platform fees, featuring, MundaLinq's income, refunds and payouts |
+| GET | `/api/v1/admin/reports/farms` | Admin. `month` (`2026-10`), `format=json\|csv`: per farm, sales, fees, refunds, featuring, payouts and net |
+
+Reports count by month in the market's time zone (Africa/Harare). The CSV files open directly in Excel.
 
 ## Administration
 

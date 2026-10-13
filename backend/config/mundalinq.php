@@ -27,6 +27,20 @@ return [
         'driver' => env('SMS_DRIVER', 'log'),
     ],
 
+    // For people who choose WhatsApp over SMS for alerts. "log" for development; "cloud" is Meta's
+    // WhatsApp Business Platform, which needs a verified business, a phone number and an approved
+    // template with one body variable ({{1}}) that carries the alert text.
+    'whatsapp' => [
+        'driver' => env('WHATSAPP_DRIVER', 'log'),
+        'cloud' => [
+            'token' => env('WHATSAPP_TOKEN'),
+            'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+            'template' => env('WHATSAPP_TEMPLATE', 'mundalinq_alert'),
+            'language' => env('WHATSAPP_TEMPLATE_LANGUAGE', 'en'),
+            'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        ],
+    ],
+
     'farms' => [
         // Private disk for identity and business documents. Files are encrypted before storage.
         'verification_disk' => env('MUNDALINQ_VERIFICATION_DISK', 'local'),
@@ -40,6 +54,11 @@ return [
         'require_product_approval' => (bool) env('MUNDALINQ_REQUIRE_PRODUCT_APPROVAL', false),
         // Listings expire so buyers never see stale produce; farmers renew them in one tap.
         'listing_ttl_days' => (int) env('MUNDALINQ_LISTING_TTL_DAYS', 30),
+        // Featured listings show first in the market. Farms pay per week from their available earnings.
+        'featuring' => [
+            'price_per_week' => env('MUNDALINQ_FEATURE_PRICE_PER_WEEK', '1.00'),
+            'weeks' => [1, 2, 4],
+        ],
         'max_variants' => 10,
         'max_price_tiers' => 5,
         'max_images' => 8,

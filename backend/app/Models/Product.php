@@ -53,6 +53,7 @@ class Product extends Model
             'reviewed_at' => 'datetime',
             'published_at' => 'datetime',
             'expires_at' => 'datetime',
+            'featured_until' => 'datetime',
             'rating_average' => 'decimal:2',
             'rating_count' => 'integer',
         ];
@@ -130,6 +131,11 @@ class Product extends Model
     {
         $query->whereColumn('products.stock_on_hand', '>', 'products.stock_reserved')
             ->whereHas('variants', fn (Builder $variant) => $variant->where('is_active', true));
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->featured_until !== null && $this->featured_until->isFuture();
     }
 
     public function isVisibleToBuyers(): bool

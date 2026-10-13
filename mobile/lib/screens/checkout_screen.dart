@@ -201,7 +201,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   setState(() => _addressId = id);
                   _requote();
                 },
-                child: Column(children: [for (final address in _addresses!) _AddressOption(address: address)]),
+                child: Column(children: [for (final address in _addresses!) AddressOption(address: address)]),
               ),
             Align(
               alignment: Alignment.centerLeft,
@@ -379,8 +379,9 @@ class _MethodChoice extends StatelessWidget {
   }
 }
 
-class _AddressOption extends StatelessWidget {
-  const _AddressOption({required this.address});
+/// One saved address as a radio choice; put inside a [RadioGroup] of address ids.
+class AddressOption extends StatelessWidget {
+  const AddressOption({super.key, required this.address});
 
   final Address address;
 

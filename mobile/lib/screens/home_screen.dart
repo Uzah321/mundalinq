@@ -16,6 +16,8 @@ import '../widgets/product_grid.dart';
 import 'farm/farm_shell.dart' show NotificationBell;
 import 'filter_sheet.dart';
 import 'location_sheet.dart';
+import 'quotes/quotes_screen.dart';
+import 'store_actions.dart';
 
 /// The storefront: greeting, banner, categories and the freshest listings in the buyer's area.
 class HomeScreen extends StatefulWidget {
@@ -160,6 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   OutlinedButton(onPressed: () => _browse(category: () => null), child: const Text('Browse all produce')),
                   const SizedBox(height: 26),
+                  const _BulkBand(),
+                  const SizedBox(height: 12),
                   const _LocalBand(),
                   const SizedBox(height: 20),
                   const Text(
@@ -248,6 +252,56 @@ class _PromiseStrip extends StatelessWidget {
             const SizedBox(width: 22),
             item(LucideIcons.heart, 'Support local'),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// For restaurants, schools and shops: ask farms for a price on a large or regular order.
+class _BulkBand extends StatelessWidget {
+  const _BulkBand();
+
+  Future<void> _open(BuildContext context) async {
+    if (!await ensureSignedIn(context, 'Sign in to ask farms for a price.') || !context.mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QuotesScreen()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Brand.radius), side: const BorderSide(color: Brand.border)),
+      child: InkWell(
+        onTap: () => _open(context),
+        borderRadius: BorderRadius.circular(Brand.radius),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(color: Brand.mint, shape: BoxShape.circle),
+                child: const Icon(LucideIcons.clipboardList, size: 20, color: Brand.green),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Buying for a restaurant, school or shop?', style: Brand.display(size: 14, color: Brand.green)),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Tell farms what you need and how often. They send their prices, and you choose.',
+                      style: TextStyle(fontSize: 12, height: 1.5, color: Brand.mutedText),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(LucideIcons.chevronRight, size: 18, color: Brand.green),
+            ],
+          ),
         ),
       ),
     );

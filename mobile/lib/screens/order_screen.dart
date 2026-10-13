@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../util/format.dart';
 import '../util/order_status.dart';
 import '../widgets/common.dart';
+import '../widgets/photo_picker.dart';
 import 'dispute_screen.dart';
 import 'messages/chat_screen.dart';
 import 'order_actions.dart';
@@ -70,7 +71,17 @@ class _OrderScreenState extends State<OrderScreen> {
     final order = _order;
 
     return Scaffold(
-      appBar: AppBar(title: Text(order == null ? 'Order' : 'Order ${order.number}')),
+      appBar: AppBar(
+        title: Text(order == null ? 'Order' : 'Order ${order.number}'),
+        actions: [
+          if (order != null)
+            IconButton(
+              tooltip: order.status == 'paid' || order.status == 'completed' ? 'Receipt (PDF)' : 'Order summary (PDF)',
+              icon: const Icon(LucideIcons.fileDown),
+              onPressed: () => openDocument(context, context.read<ApiClient>(), '/orders/${order.id}/receipt-link'),
+            ),
+        ],
+      ),
       body: order == null
           ? Center(
               child: _error == null

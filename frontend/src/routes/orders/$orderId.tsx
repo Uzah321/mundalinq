@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CircleCheck, KeyRound, LoaderCircle, MapPin, MessageCircle, PartyPopper, Smartphone, Star, TriangleAlert } from "lucide-react";
+import { CircleCheck, FileDown, KeyRound, LoaderCircle, MapPin, MessageCircle, PartyPopper, Smartphone, Star, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog, Pill } from "@/components/admin/ui";
 import { ShopPage } from "@/components/store/shop-page";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { api, errorMessage } from "@/lib/api";
+import { api, downloadFile, errorMessage } from "@/lib/api";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, formatMoney, formatPhone } from "@/lib/format";
 import { buyerOrderStatus, sellerOrderStatus } from "@/lib/order-status";
@@ -36,6 +36,7 @@ function OrderDetail() {
   const { placed } = Route.useSearch();
   const query = useOrder(orderId);
   const [cancelling, setCancelling] = useState(false);
+  const [saving, setSaving] = useState(false);
   const cancel = useOrderAction(() => api(`/orders/${orderId}/cancel`, { method: "POST" }));
   const order = query.data;
 
@@ -56,6 +57,17 @@ function OrderDetail() {
 
   const status = buyerOrderStatus(order);
   const money = (amount: string) => formatMoney(amount, order.currency);
+
+  async function saveReceipt() {
+    setSaving(true);
+    try {
+      await downloadFile(`/orders/${order!.id}/receipt`, `MundaLinq-${order!.number}.pdf`);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setSaving(false);
+    }
+  }
   const canCancel = order.status === "awaiting_confirmation" || order.status === "awaiting_payment";
 
   return (
@@ -78,11 +90,17 @@ function OrderDetail() {
           <p>{status.text}</p>
           {order.created_at && <small className="field-hint">Placed {formatDateTime(order.created_at)}</small>}
         </div>
-        {canCancel && (
-          <Button variant="ghost" className="order-cancel" onClick={() => setCancelling(true)}>
-            Cancel order
+        <div className="order-head-actions">
+          <Button variant="outline" size="sm" onClick={saveReceipt} disabled={saving}>
+            {saving ? <LoaderCircle className="animate-spin" /> : <FileDown />}
+            {order.status === "paid" || order.status === "completed" ? "Receipt (PDF)" : "Order summary (PDF)"}
           </Button>
-        )}
+          {canCancel && (
+            <Button variant="ghost" className="order-cancel" onClick={() => setCancelling(true)}>
+              Cancel order
+            </Button>
+          )}
+        </div>
       </section>
 
       {order.status === "awaiting_payment" && <PayPanel order={order} onPaid={() => query.refetch()} />}

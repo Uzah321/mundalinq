@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api/api_client.dart';
+import '../api/server.dart';
 import '../theme.dart';
 import '../util/format.dart';
 import 'common.dart';
@@ -51,6 +52,25 @@ Future<UploadFile?> pickPhoto(BuildContext context, {required String field, Stri
 Future<void> callPhone(BuildContext context, String phone) async {
   final opened = await launchUrl(Uri(scheme: 'tel', path: phone)).catchError((Object _) => false);
   if (!opened && context.mounted) showMessage(context, 'Call ${formatPhone(phone)}');
+}
+
+/// Opens WhatsApp with [text] ready to send to anyone (WhatsApp Web when the app isn't installed).
+Future<void> shareOnWhatsApp(BuildContext context, String text) async {
+  final link = Uri.https('wa.me', '/', {'text': text});
+  final opened = await launchUrl(link, mode: LaunchMode.externalApplication).catchError((Object _) => false);
+  if (!opened && context.mounted) showMessage(context, "Couldn't open WhatsApp.");
+}
+
+/// Opens a PDF (receipt, sale record) in the phone's browser. The browser has no sign-in, so the API first
+/// hands out a short-lived signed link.
+Future<void> openDocument(BuildContext context, ApiClient api, String linkPath) async {
+  try {
+    final data = (await api.get(linkPath) as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+    final opened = await launchUrl(Uri.parse('${Server.origin}${data['path']}'), mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) showMessage(context, "Couldn't open the PDF.");
+  } catch (error) {
+    if (context.mounted) showMessage(context, errorMessage(error));
+  }
 }
 
 /// Opens a maps app at a point, falling back to Google Maps in the browser.

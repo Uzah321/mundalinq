@@ -190,6 +190,7 @@ const _smsCategories = {
   'listings': ('Listings', 'Approvals and low stock'),
   'account': ('Account', 'Farm verification'),
   'payouts': ('Payouts', 'When money is sent to you'),
+  'quotes': ('Requests for quotes', 'Buyers asking for prices, and offers on your requests'),
 };
 
 /// Which updates also come by SMS. Everything always lands in the in-app notifications; codes always come by SMS.
@@ -203,12 +204,21 @@ class NotificationSettingsScreen extends StatefulWidget {
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
   Map<String, bool>? _sms;
 
+  /// "sms" or "whatsapp": how alerts that leave the app are sent.
+  String _channel = 'sms';
+
   @override
   void initState() {
     super.initState();
     context.read<ApiClient>().get('/me/notification-preferences').then((response) {
-      final sms = ((response as Map<String, dynamic>)['data'] as Map<String, dynamic>)['sms'] as Map<String, dynamic>;
-      if (mounted) setState(() => _sms = sms.map((key, value) => MapEntry(key, value as bool)));
+      final data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      final sms = data['sms'] as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          _sms = sms.map((key, value) => MapEntry(key, value as bool));
+          _channel = data['channel'] as String? ?? 'sms';
+        });
+      }
     }).catchError((Object error) {
       if (mounted) showMessage(context, errorMessage(error));
     });
@@ -227,21 +237,46 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     }
   }
 
+  Future<void> _setChannel(String channel) async {
+    final previous = _channel;
+    setState(() => _channel = channel);
+    try {
+      await context.read<ApiClient>().patch('/me/notification-preferences', {'channel': channel});
+      if (mounted) showMessage(context, channel == 'whatsapp' ? 'Alerts will come by WhatsApp' : 'Alerts will come by SMS');
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _channel = previous);
+      showMessage(context, errorMessage(error));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final sms = _sms;
+    final by = _channel == 'whatsapp' ? 'WhatsApp' : 'SMS';
     return Scaffold(
-      appBar: AppBar(title: const Text('SMS updates')),
+      appBar: AppBar(title: const Text('SMS and WhatsApp')),
       body: sms == null
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 12),
               children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: 'sms', label: Text('SMS'), icon: Icon(LucideIcons.messageSquare, size: 16)),
+                      ButtonSegment(value: 'whatsapp', label: Text('WhatsApp'), icon: Icon(LucideIcons.messageCircle, size: 16)),
+                    ],
+                    selected: {_channel},
+                    onSelectionChanged: (choice) => _setChannel(choice.first),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Text(
-                    'Everything always shows in the app. Choose what also comes by SMS. Sign-in codes always come by SMS.',
-                    style: TextStyle(color: Brand.mutedText, height: 1.5),
+                    'Everything always shows in the app. Choose what also comes by $by. Sign-in codes always come by SMS.',
+                    style: const TextStyle(color: Brand.mutedText, height: 1.5),
                   ),
                 ),
                 for (final entry in _smsCategories.entries)

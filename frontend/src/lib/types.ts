@@ -42,6 +42,8 @@ export type ProductImage = {
 export type ProductCard = {
   id: string;
   title: string;
+  /** Paid (or staff-granted) placement: shown first, with a badge. */
+  featured?: boolean;
   category: { name: string; slug: string };
   quality_grade: QualityGrade | null;
   currency: string;
@@ -76,6 +78,7 @@ export type Variant = {
 export type ProductDetail = {
   id: string;
   title: string;
+  featured?: boolean;
   description: string | null;
   category: { id: string; name: string; slug: string };
   quality_grade: QualityGrade | null;
@@ -266,6 +269,7 @@ export type ManagedListing = ProductDetail & {
   reviewed_at: string | null;
   expires_at: string | null;
   is_expired: boolean;
+  featured_until: string | null;
   stock: { unit: string; on_hand: string; reserved: string; available: string; low_stock_threshold: string; is_low: boolean };
   cover_image?: ProductImage | null;
   created_at: string | null;
@@ -504,7 +508,7 @@ export type AppNotification = {
   category: string;
   title: string | null;
   body: string | null;
-  context: { order_id?: string; seller_order_id?: string; farm_id?: string; conversation_id?: string; dispute_id?: string; product_id?: string };
+  context: { order_id?: string; seller_order_id?: string; farm_id?: string; conversation_id?: string; dispute_id?: string; product_id?: string; quote_request_id?: string };
   read_at: string | null;
   created_at: string | null;
 };

@@ -65,6 +65,8 @@ export const auditActions: Record<string, string> = {
   "product.approved": "Approved a listing",
   "product.rejected": "Rejected a listing",
   "product.taken_down": "Took down a listing",
+  "product.featured": "Featured a listing",
+  "product.featuring_stopped": "Stopped featuring a listing",
   "review.hidden": "Hid a review",
   "review.unhidden": "Showed a review again",
   "dispute.resolved": "Resolved a dispute",

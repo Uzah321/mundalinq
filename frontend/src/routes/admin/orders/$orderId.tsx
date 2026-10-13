@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, MessageSquareWarning, Star } from "lucide-react";
+import { ArrowLeft, FileDown, MessageSquareWarning, Star } from "lucide-react";
+import { toast } from "sonner";
 import { Fact, Facts, ItemState, Pill, Section } from "@/components/admin/ui";
+import { Button } from "@/components/ui/button";
+import { downloadFile, errorMessage } from "@/lib/api";
 import { orderStatuses, paymentStatuses, refundStatuses, sellerOrderStatuses, statusOf, useAdminItem } from "@/lib/admin";
 import { formatDateTime, formatMoney, formatPhone } from "@/lib/format";
 import type { AdminOrder, SellerOrder } from "@/lib/types";
@@ -26,9 +29,18 @@ function OrderPage() {
       </Link>
       <div className="admin-heading">
         <Pill tone={status.tone}>{status.label}</Pill>
-        <h1>
-          {order.number} · {money(order.total)}
-        </h1>
+        <div className="admin-heading-row">
+          <h1>
+            {order.number} · {money(order.total)}
+          </h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => downloadFile(`/orders/${order.id}/receipt`, `MundaLinq-${order.number}.pdf`).catch((error) => toast.error(errorMessage(error)))}
+          >
+            <FileDown /> {order.paid_at ? "Receipt (PDF)" : "Order summary (PDF)"}
+          </Button>
+        </div>
         <p>{order.created_at && `Placed ${formatDateTime(order.created_at)}`}</p>
       </div>
       {order.cancellation_reason && (

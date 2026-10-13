@@ -50,12 +50,18 @@ class ProductSearch
             $this->applyRadius($query, (float) $filters['lat'], (float) $filters['lng'], (float) ($filters['radius_km'] ?? 50));
         }
 
+        if (filter_var($filters['featured'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $query->where('products.featured_until', '>', now());
+        }
+
         match ($filters['sort'] ?? ($nearby ? 'nearest' : 'newest')) {
             'nearest' => $query->orderBy('distance_km'),
             'price_asc' => $query->orderBy('from_price_minor'),
             'price_desc' => $query->orderByDesc('from_price_minor'),
             'freshest' => $query->orderByRaw('products.last_harvested_on desc nulls last'),
-            default => $query->orderByDesc('products.published_at'),
+            // The default order puts featured listings first; a sort the buyer picks is left as chosen.
+            default => $query->orderByRaw('(products.featured_until is not null and products.featured_until > now()) desc')
+                ->orderByDesc('products.published_at'),
         };
 
         return $query->orderBy('products.id')

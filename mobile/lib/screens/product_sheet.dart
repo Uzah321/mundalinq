@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../api/api_client.dart';
 import '../api/farm_models.dart';
 import '../api/models.dart';
+import '../api/server.dart';
 import '../state/cart.dart';
 import '../state/catalog.dart';
 import '../state/favourites.dart';
@@ -14,6 +15,7 @@ import '../theme.dart';
 import '../util/format.dart';
 import '../widgets/category_visual.dart';
 import '../widgets/common.dart';
+import '../widgets/photo_picker.dart';
 import '../widgets/reviews.dart';
 import 'farm_page_screen.dart';
 import 'messages/chat_screen.dart';
@@ -242,6 +244,7 @@ class _ProductBodyState extends State<_ProductBody> {
           spacing: 6,
           runSpacing: 6,
           children: [
+            if (product.featured) const Tag(label: 'Featured', icon: LucideIcons.sparkles),
             if (product.grade != null) Tag(label: 'Grade ${product.grade}'),
             if (product.offersPickup) const Tag(label: 'Farm pickup', icon: LucideIcons.store),
             if (product.offersDelivery)
@@ -278,6 +281,15 @@ class _ProductBodyState extends State<_ProductBody> {
           onPressed: _message,
           icon: const Icon(LucideIcons.messageCircle, size: 18),
           label: const Text('Ask the farm a question'),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => shareOnWhatsApp(
+            context,
+            '${product.title} from ${product.farmName} on MundaLinq: ${Server.webUrl}/?product=${product.id}',
+          ),
+          icon: const Icon(LucideIcons.share2, size: 18),
+          label: const Text('Share on WhatsApp'),
         ),
         if (_summary != null && _summary!.count > 0) ...[
           const SizedBox(height: 24),

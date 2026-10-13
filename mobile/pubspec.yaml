@@ -2,7 +2,7 @@ name: mundalinq
 description: "MundaLinq: fresh produce straight from verified farms. Buyer app for Android and iOS."
 publish_to: 'none'
 
-version: 0.2.3+5
+version: 0.2.4+6
 
 environment:
   sdk: ^3.13.0

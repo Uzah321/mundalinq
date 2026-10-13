@@ -13,6 +13,7 @@ import 'earnings_screen.dart';
 import 'farm_form_screen.dart';
 import 'farm_reviews_screen.dart';
 import 'farm_shell.dart';
+import 'quote_requests_screen.dart';
 import 'verification_screen.dart';
 
 /// The farm itself: verification, money, how sales are going, and settings.
@@ -123,6 +124,12 @@ class _FarmHomeScreenState extends State<FarmHomeScreen> {
             ],
             const SizedBox(height: 14),
             _Tile(icon: LucideIcons.store, title: 'Farm details', subtitle: 'Name, contact, collection and delivery', onTap: () => _open(FarmFormScreen(farm: farm))),
+            _Tile(
+              icon: LucideIcons.clipboardList,
+              title: 'Requests for quotes',
+              subtitle: 'Buyers asking for prices on bulk and regular orders',
+              onTap: () => _open(QuoteRequestsScreen(farm: farm)),
+            ),
             if (farm.isOwner)
               _Tile(icon: LucideIcons.wallet, title: 'Earnings and payouts', subtitle: 'Where your money is paid', onTap: () => _open(EarningsScreen(farm: farm))),
             _Tile(

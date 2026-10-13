@@ -5,7 +5,7 @@ import { QueueList, rowsOf } from "@/components/admin/ui";
 import { ShopPage } from "@/components/store/shop-page";
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/format";
-import { useNotificationActions, useNotifications } from "@/lib/shop";
+import { useAlertSettings, useNotificationActions, useNotifications } from "@/lib/shop";
 import type { AppNotification } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -25,8 +25,45 @@ function Notifications() {
         </Button>
       }
     >
+      <AlertChannel />
       <NotificationList />
     </ShopPage>
+  );
+}
+
+/** SMS or WhatsApp for alerts sent outside the website and app. */
+function AlertChannel() {
+  const { settings, save } = useAlertSettings();
+  const channel = settings.data?.channel;
+  if (!channel) return null;
+
+  return (
+    <section className="shop-card alert-channel">
+      <div>
+        <strong>Also send my alerts by</strong>
+        <small>Order updates and messages, as well as here. Choose which kinds in the app under SMS updates.</small>
+      </div>
+      <div className="choice-row" role="radiogroup" aria-label="Send alerts by">
+        {(["sms", "whatsapp"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={channel === option}
+            className={cn("choice", channel === option && "selected")}
+            disabled={save.isPending}
+            onClick={() =>
+              save.mutate(
+                { channel: option },
+                { onSuccess: () => toast.success(option === "whatsapp" ? "Alerts will come by WhatsApp" : "Alerts will come by SMS") },
+              )
+            }
+          >
+            {option === "sms" ? "SMS" : "WhatsApp"}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -38,9 +75,11 @@ function NotificationList() {
 
   function open(notification: AppNotification) {
     if (!notification.read_at) read.mutate(notification.id);
-    const { order_id, conversation_id, seller_order_id, farm_id } = notification.context;
+    const { order_id, conversation_id, seller_order_id, farm_id, quote_request_id } = notification.context;
     if (order_id) return navigate({ to: "/orders/$orderId", params: { orderId: order_id } });
     if (conversation_id) return navigate({ to: "/messages/chat", search: { conversation: conversation_id } });
+    // Offers on the buyer's own request; a farm's alerts about requests also name the farm.
+    if (quote_request_id && !farm_id) return navigate({ to: "/quotes/$requestId", params: { requestId: quote_request_id } });
     // Farm work (accepting orders, listings, payouts) happens in the app.
     if (seller_order_id || farm_id) toast.info("Open the MundaLinq app and switch to selling to manage your farm's orders.");
   }

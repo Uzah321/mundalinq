@@ -30,6 +30,7 @@ class ProductResource extends JsonResource
                 'slug' => $this->category->slug,
             ],
             'quality_grade' => $this->quality_grade,
+            'featured' => $this->isFeatured(),
             'currency' => $this->currency,
             'stock_unit' => UnitResource::make($this->stockUnit),
             'available_quantity' => Quantity::format($this->availableStock()),

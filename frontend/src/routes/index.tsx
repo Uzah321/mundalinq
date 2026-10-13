@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, ChevronDown, Heart, Leaf, MapPin, Search, SlidersHorizontal, Sprout, TriangleAlert } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, BadgeCheck, ChevronDown, ClipboardList, Heart, Leaf, MapPin, Search, SlidersHorizontal, Sprout, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { AccountDialog } from "@/components/store/account-dialog";
 import { AppHeader } from "@/components/store/app-header";
@@ -253,6 +253,21 @@ function Storefront() {
               onChangeArea={() => setPanel("location")}
             />
           )}
+        </section>
+
+        <section className="local-band bulk-band">
+          <span className="local-icon">
+            <ClipboardList />
+          </span>
+          <div>
+            <h3>Buying for a restaurant, school or shop?</h3>
+            <p>Tell farms what you need and how often. They send their prices, and you choose the best offer.</p>
+          </div>
+          <Button asChild className="bulk-band-action">
+            <Link to="/quotes/new">
+              Ask farms for a price <ArrowRight />
+            </Link>
+          </Button>
         </section>
 
         <section className="local-band">

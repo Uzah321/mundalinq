@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Contracts\SmsGateway;
+use App\Contracts\WhatsAppGateway;
 use App\Models\PersonalAccessToken;
 use App\Services\Sms\LogSmsGateway;
+use App\Services\WhatsApp\CloudWhatsAppGateway;
+use App\Services\WhatsApp\LogWhatsAppGateway;
 use App\Support\Phone;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SmsGateway::class, fn () => match (config('mundalinq.sms.driver')) {
             'log' => new LogSmsGateway,
             default => throw new InvalidArgumentException('Unsupported SMS driver ['.config('mundalinq.sms.driver').'].'),
+        });
+
+        $this->app->singleton(WhatsAppGateway::class, fn () => match (config('mundalinq.whatsapp.driver')) {
+            'log' => new LogWhatsAppGateway,
+            'cloud' => new CloudWhatsAppGateway,
+            default => throw new InvalidArgumentException('Unsupported WhatsApp driver ['.config('mundalinq.whatsapp.driver').'].'),
         });
     }
 

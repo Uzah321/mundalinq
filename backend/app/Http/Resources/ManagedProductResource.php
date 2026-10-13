@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Product;
 use App\Support\Quantity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -9,7 +10,7 @@ use Illuminate\Support\Collection;
 /**
  * The listing as its farm (and staff) see it: status, review outcome, raw settings and stock detail.
  *
- * @mixin \App\Models\Product
+ * @mixin Product
  */
 class ManagedProductResource extends ProductResource
 {
@@ -21,6 +22,7 @@ class ManagedProductResource extends ProductResource
             'rejection_reason' => $this->rejection_reason,
             'reviewed_at' => $this->reviewed_at?->toIso8601String(),
             'expires_at' => $this->expires_at?->toIso8601String(),
+            'featured_until' => $this->isFeatured() ? $this->featured_until->toIso8601String() : null,
             'is_expired' => $this->isExpired(),
             'farm_location_id' => $this->farm_location_id,
             // The listing's own settings; buyers see these combined with the farm's.

@@ -18,6 +18,14 @@ class Server {
     return '${uri.scheme}://${uri.authority}';
   }
 
+  /// The website, for links people share to WhatsApp. WEB_URL in builds for a hosted site; otherwise the
+  /// computer running the API, whose website development server listens on port 5173.
+  static String get webUrl {
+    if (AppConfig.webUrl.isNotEmpty) return _trim(AppConfig.webUrl);
+    final uri = Uri.parse(_baseUrl);
+    return '${uri.scheme}://${uri.host}:5173';
+  }
+
   static Future<void> restore() async {
     try {
       final stored = (await SharedPreferences.getInstance()).getString(_key);

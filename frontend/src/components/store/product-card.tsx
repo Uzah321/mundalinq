@@ -136,6 +136,7 @@ export function ProductCardSkeleton() {
 }
 
 function productBadge(product: ProductSummary): { text: string; warm: boolean } | null {
+  if (product.featured) return { text: "Featured", warm: true };
   if (product.harvestedOn && daysSince(product.harvestedOn) <= 2) return { text: "Fresh pick", warm: true };
   if (product.grade === "A") return { text: "Grade A", warm: false };
   return null;

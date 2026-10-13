@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import {
+  FileSpreadsheet,
   LayoutDashboard,
   LoaderCircle,
   LogOut,
@@ -37,6 +38,7 @@ type NavItem = {
     | "/admin/disputes"
     | "/admin/users"
     | "/admin/money"
+    | "/admin/reports"
     | "/admin/reviews"
     | "/admin/categories"
     | "/admin/audit-log";
@@ -56,6 +58,7 @@ const NAV: NavItem[] = [
   { to: "/admin/disputes", label: "Disputes", icon: MessageSquareWarning, allowed: isStaff, count: (queues) => queues.open_disputes },
   { to: "/admin/users", label: "Users", icon: Users, allowed: isStaff },
   { to: "/admin/money", label: "Money", icon: Wallet, allowed: isAdmin, count: (queues) => queues.payments_to_refund + queues.failed_refunds },
+  { to: "/admin/reports", label: "Reports", icon: FileSpreadsheet, allowed: isAdmin },
   { to: "/admin/reviews", label: "Reviews", icon: Star, allowed: isAdmin },
   { to: "/admin/categories", label: "Categories", icon: Tags, allowed: isAdmin },
   { to: "/admin/audit-log", label: "Audit log", icon: ScrollText, allowed: isSuperAdmin },
