@@ -43,13 +43,14 @@ class Category {
 }
 
 class Unit {
-  Unit({required this.code, required this.name, required this.pluralName, this.allowsFraction});
+  Unit({required this.code, required this.name, required this.pluralName, this.allowsFraction, this.measure});
 
   factory Unit.fromJson(Map<String, dynamic> json) => Unit(
         code: json['code'] as String,
         name: json['name'] as String,
         pluralName: json['plural_name'] as String,
         allowsFraction: json['allows_fraction'] as bool?,
+        measure: json['measure'] as String?,
       );
 
   final String code;
@@ -58,6 +59,13 @@ class Unit {
 
   /// Only present on the full unit list: whether it can be ordered in fractions (kg) or only whole (crates).
   final bool? allowsFraction;
+
+  /// mass, volume or count; only on the full unit list.
+  final String? measure;
+
+  /// Whether one of these converts to [stock] by itself (kg to tonne) or the farmer must say how much it holds
+  /// (a crate of tomatoes).
+  bool convertsTo(Unit stock) => code == stock.code || (measure != null && measure != 'count' && measure == stock.measure);
 }
 
 class ProductImage {
@@ -201,6 +209,7 @@ class ProductDetail {
     required this.currency,
     required this.variants,
     required this.images,
+    required this.farmId,
     required this.farmName,
     required this.farmVerified,
     required this.province,
@@ -225,6 +234,7 @@ class ProductDetail {
       currency: json['currency'] as String? ?? 'USD',
       variants: _list(json['variants'], Variant.fromJson),
       images: _list(json['images'], ProductImage.fromJson),
+      farmId: farm['id'] as String,
       farmName: farm['name'] as String,
       farmVerified: farm['verified'] as bool? ?? false,
       province: location['province'] as String,
@@ -245,6 +255,7 @@ class ProductDetail {
   final String currency;
   final List<Variant> variants;
   final List<ProductImage> images;
+  final String farmId;
   final String farmName;
   final bool farmVerified;
   final String province;
@@ -393,7 +404,7 @@ class Cart {
 typedef Quote = Cart;
 
 class User {
-  User({required this.id, required this.name, required this.phone, required this.phoneVerified, required this.email});
+  User({required this.id, required this.name, required this.phone, required this.phoneVerified, required this.email, required this.roles});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json['id'] as String,
@@ -401,6 +412,7 @@ class User {
         phone: json['phone'] as String,
         phoneVerified: json['phone_verified'] as bool? ?? false,
         email: json['email'] as String?,
+        roles: (json['roles'] as List? ?? const []).cast<String>(),
       );
 
   final String id;
@@ -408,6 +420,11 @@ class User {
   final String phone;
   final bool phoneVerified;
   final String? email;
+
+  /// buyer, farmer, business_buyer (and staff roles, which use the web dashboard).
+  final List<String> roles;
+
+  bool get isFarmer => roles.contains('farmer');
 
   String get firstName => name.trim().split(RegExp(r'\s+')).first;
 }
@@ -485,6 +502,7 @@ class SellerOrder {
     required this.id,
     required this.number,
     required this.status,
+    required this.farmId,
     required this.farmName,
     required this.farmPhone,
     required this.fulfilmentMethod,
@@ -497,6 +515,7 @@ class SellerOrder {
     required this.deliveryAddress,
     required this.pickupLocations,
     required this.reportProblemUntil,
+    required this.disputeId,
     required this.disputeStatus,
     required this.reviewRating,
   });
@@ -509,6 +528,7 @@ class SellerOrder {
       id: json['id'] as String,
       number: json['number'] as String,
       status: json['status'] as String,
+      farmId: farm['id'] as String,
       farmName: farm['name'] as String,
       farmPhone: farm['contact_phone'] as String?,
       fulfilmentMethod: json['fulfilment_method'] as String,
@@ -521,6 +541,7 @@ class SellerOrder {
       deliveryAddress: json['delivery_address'] as Map<String, dynamic>?,
       pickupLocations: (json['pickup_locations'] as List? ?? const []).whereType<Map<String, dynamic>>().toList(),
       reportProblemUntil: _time(json['report_problem_until']),
+      disputeId: dispute?['id'] as String?,
       disputeStatus: dispute?['status'] as String?,
       reviewRating: review?['rating'] as int?,
     );
@@ -529,6 +550,7 @@ class SellerOrder {
   final String id;
   final String number;
   final String status;
+  final String farmId;
   final String farmName;
   final String? farmPhone;
   final String fulfilmentMethod;
@@ -543,6 +565,7 @@ class SellerOrder {
   final Map<String, dynamic>? deliveryAddress;
   final List<Map<String, dynamic>> pickupLocations;
   final DateTime? reportProblemUntil;
+  final String? disputeId;
   final String? disputeStatus;
   final int? reviewRating;
 

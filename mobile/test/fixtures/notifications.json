@@ -1,0 +1,100 @@
+{
+  "data": [
+    {
+      "id": "4f7d8625-015e-4d1f-aa47-df1e2bcd5987",
+      "category": "orders",
+      "title": "New order ML-LAWW32-1",
+      "body": "New order ML-LAWW32-1 on MundaLinq: 1 item(s), $0.50. Accept or reject it in the app by 12:16, 13 Oct.",
+      "context": {
+        "farm_id": "01a1316b-cab9-72f8-80be-55cf59504b44",
+        "seller_order_id": "01a133e7-549e-7169-874a-7b39f9dd422b"
+      },
+      "read_at": null,
+      "created_at": "2026-10-13T06:16:00+00:00"
+    },
+    {
+      "id": "cf56a323-fcad-4001-867f-ccaf9837e344",
+      "category": "orders",
+      "title": "Order ML-4Z2ANS-1 paid",
+      "body": "Order ML-4Z2ANS-1 is paid. Prepare it for collection.",
+      "context": {
+        "farm_id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "seller_order_id": "01a13387-b8b2-7246-a884-f66508a708c5"
+      },
+      "read_at": null,
+      "created_at": "2026-10-13T04:33:03+00:00"
+    },
+    {
+      "id": "512354c9-cb8e-42f2-8024-92dbaaf8efd2",
+      "category": "orders",
+      "title": "New order ML-4Z2ANS-1",
+      "body": "New order ML-4Z2ANS-1 on MundaLinq: 1 item(s), $2.00. Accept or reject it in the app by 10:31, 13 Oct.",
+      "context": {
+        "farm_id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "seller_order_id": "01a13387-b8b2-7246-a884-f66508a708c5"
+      },
+      "read_at": null,
+      "created_at": "2026-10-13T04:31:35+00:00"
+    },
+    {
+      "id": "83e08e35-9e60-47f2-b8d2-a2c33b518d8b",
+      "category": "orders",
+      "title": "Order ML-P8JK5Z-1 paid",
+      "body": "Order ML-P8JK5Z-1 is paid. Prepare it for collection.",
+      "context": {
+        "farm_id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "seller_order_id": "01a1337d-ef0a-737c-b0e2-6145a907894e"
+      },
+      "read_at": null,
+      "created_at": "2026-10-13T04:20:56+00:00"
+    },
+    {
+      "id": "7fe6ec68-7219-4495-acb3-7ae9c830e930",
+      "category": "orders",
+      "title": "New order ML-P8JK5Z-1",
+      "body": "New order ML-P8JK5Z-1 on MundaLinq: 1 item(s), $2.40. Accept or reject it in the app by 10:20, 13 Oct.",
+      "context": {
+        "farm_id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "seller_order_id": "01a1337d-ef0a-737c-b0e2-6145a907894e"
+      },
+      "read_at": null,
+      "created_at": "2026-10-13T04:20:53+00:00"
+    }
+  ],
+  "links": {
+    "first": "http://127.0.0.1:8000/api/v1/me/notifications?page=1",
+    "last": "http://127.0.0.1:8000/api/v1/me/notifications?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "page": null,
+        "active": false
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/v1/me/notifications?page=1",
+        "label": "1",
+        "page": 1,
+        "active": true
+      },
+      {
+        "url": null,
+        "label": "Next &raquo;",
+        "page": null,
+        "active": false
+      }
+    ],
+    "path": "http://127.0.0.1:8000/api/v1/me/notifications",
+    "per_page": 20,
+    "to": 5,
+    "total": 5,
+    "unread_count": 5
+  }
+}

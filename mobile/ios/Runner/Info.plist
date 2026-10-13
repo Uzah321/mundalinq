@@ -36,10 +36,18 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>MundaLinq uses the camera to photograph your produce, verification documents and order problems.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>MundaLinq connects to the MundaLinq test server on your Wi-Fi network.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MundaLinq uses your location to show farms near you and to pin your delivery address.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MundaLinq lets you choose photos of your produce, documents and order problems from your library.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

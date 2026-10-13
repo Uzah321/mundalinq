@@ -6,9 +6,12 @@ import 'package:provider/provider.dart';
 import 'api/api_client.dart';
 import 'api/server.dart';
 import 'screens/app_shell.dart';
+import 'screens/farm/farm_shell.dart';
 import 'state/cart.dart';
 import 'state/catalog.dart';
+import 'state/farm.dart';
 import 'state/favourites.dart';
+import 'state/notifications.dart';
 import 'state/product_search.dart';
 import 'state/session.dart';
 import 'state/shell.dart';
@@ -35,8 +38,12 @@ Future<void> main() async {
   final favourites = FavouritesController(api);
   final catalog = CatalogController(api);
   final area = ShoppingAreaController();
+  final farms = FarmController(api);
+  final notifications = NotificationsController(api);
+  await farms.restore();
 
-  // The basket and favourites belong to whoever is signed in: load them on sign-in, drop them on sign-out.
+  // The basket, favourites, farms and notifications belong to whoever is signed in: load them on sign-in, drop
+  // them on sign-out.
   var wasSignedIn = false;
   session.addListener(() {
     if (session.signedIn == wasSignedIn) return;
@@ -44,9 +51,13 @@ Future<void> main() async {
     if (session.signedIn) {
       cart.load();
       favourites.load();
+      farms.load();
+      notifications.start();
     } else {
       cart.reset();
       favourites.reset();
+      farms.reset();
+      notifications.stop();
     }
   });
 
@@ -63,6 +74,8 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: favourites),
         ChangeNotifierProvider.value(value: catalog),
         ChangeNotifierProvider.value(value: area),
+        ChangeNotifierProvider.value(value: farms),
+        ChangeNotifierProvider.value(value: notifications),
         ChangeNotifierProvider(create: (_) => BrowseController()),
         ChangeNotifierProvider(create: (_) => ShellController()),
         ChangeNotifierProvider(create: (_) => QuickAddController()),
@@ -78,12 +91,25 @@ class MundaLinqApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final restoring = context.select<Session, bool>((session) => session.restoring);
+    final signedIn = context.select<Session, bool>((session) => session.signedIn);
+    // Farmers land back on their farm; a farm the server hasn't returned yet shows the splash briefly.
+    final selling = context.select<FarmController, bool>((farms) => farms.selling);
+    final farmsPending = context.select<FarmController, bool>((farms) => !farms.loaded && farms.error == null);
+
+    final Widget home;
+    if (restoring || (signedIn && farmsPending && FarmController.wasSelling)) {
+      home = const _Splash();
+    } else if (signedIn && selling) {
+      home = const FarmShell();
+    } else {
+      home = const AppShell();
+    }
 
     return MaterialApp(
       title: 'MundaLinq',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      home: restoring ? const _Splash() : const AppShell(),
+      home: home,
     );
   }
 }

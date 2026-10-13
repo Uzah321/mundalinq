@@ -1,0 +1,294 @@
+{
+  "data": [
+    {
+      "id": "01a1315c-a114-73e9-894f-4de955a3527f",
+      "title": "Fresh farm milk",
+      "description": "Pasteurised whole milk, bottled every morning.",
+      "category": {
+        "id": "01a13011-1c1d-70d2-99b6-636f7cf504ed",
+        "name": "Milk & dairy",
+        "slug": "milk-and-dairy"
+      },
+      "quality_grade": "A",
+      "currency": "USD",
+      "stock_unit": {
+        "code": "litre",
+        "name": "litre",
+        "plural_name": "litres",
+        "measure": "volume",
+        "allows_fraction": true
+      },
+      "available_quantity": "80",
+      "variants": [
+        {
+          "id": "01a1315c-a115-72cd-a905-e4800ac66cf5",
+          "unit": {
+            "code": "litre",
+            "name": "litre",
+            "plural_name": "litres"
+          },
+          "label": null,
+          "base_quantity": "1",
+          "price": "1.20",
+          "price_tiers": [],
+          "min_order_quantity": "1",
+          "max_order_quantity": null,
+          "available_quantity": "80",
+          "is_active": true
+        }
+      ],
+      "farm": {
+        "id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "name": "Demo Green Acres",
+        "verified": true,
+        "contact_phone": "+263711241106"
+      },
+      "location": {
+        "province": "Mashonaland East",
+        "district": "Goromonzi",
+        "ward": "12"
+      },
+      "offers_pickup": true,
+      "offers_delivery": false,
+      "delivery_radius_km": null,
+      "last_harvested_on": "2026-10-12",
+      "rating": {
+        "average": null,
+        "count": 0
+      },
+      "published_at": "2026-10-12T18:25:16+00:00",
+      "status": "active",
+      "rejection_reason": null,
+      "reviewed_at": null,
+      "expires_at": "2026-11-11T18:25:16+00:00",
+      "is_expired": false,
+      "farm_location_id": "01a13011-1cf2-7182-a8a6-888a6f43d7d4",
+      "stock": {
+        "unit": "litre",
+        "on_hand": "80",
+        "reserved": "0",
+        "available": "80",
+        "low_stock_threshold": null,
+        "is_low": false
+      },
+      "cover_image": {
+        "id": "01a1315c-a154-71a8-b674-1101a5bc8389",
+        "url": "http://192.168.111.105:8000/storage/products/01a1315c-a114-73e9-894f-4de955a3527f/01a1315c-a151-7390-a331-acbc73c99602.webp",
+        "thumb_url": "http://192.168.111.105:8000/storage/products/01a1315c-a114-73e9-894f-4de955a3527f/01a1315c-a151-7390-a331-acbc73c99602_thumb.webp",
+        "width": 512,
+        "height": 512,
+        "position": 0
+      },
+      "created_at": "2026-10-12T18:25:16+00:00"
+    },
+    {
+      "id": "01a1315c-a085-7119-b4d3-2ffb7dd31456",
+      "title": "Red apples",
+      "description": "Crisp, juicy red apples for lunchboxes and baking.",
+      "category": {
+        "id": "01a13011-1c0f-7141-b097-f1b580de461d",
+        "name": "Other fruit",
+        "slug": "other-fruit"
+      },
+      "quality_grade": "A",
+      "currency": "USD",
+      "stock_unit": {
+        "code": "kg",
+        "name": "kilogram",
+        "plural_name": "kilograms",
+        "measure": "mass",
+        "allows_fraction": true
+      },
+      "available_quantity": "149",
+      "variants": [
+        {
+          "id": "01a1315c-a087-71ae-941d-b8b6e7918699",
+          "unit": {
+            "code": "kg",
+            "name": "kilogram",
+            "plural_name": "kilograms"
+          },
+          "label": null,
+          "base_quantity": "1",
+          "price": "2.00",
+          "price_tiers": [],
+          "min_order_quantity": "1",
+          "max_order_quantity": null,
+          "available_quantity": "149",
+          "is_active": true
+        }
+      ],
+      "farm": {
+        "id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "name": "Demo Green Acres",
+        "verified": true,
+        "contact_phone": "+263711241106"
+      },
+      "location": {
+        "province": "Mashonaland East",
+        "district": "Goromonzi",
+        "ward": "12"
+      },
+      "offers_pickup": true,
+      "offers_delivery": true,
+      "delivery_radius_km": 50,
+      "last_harvested_on": null,
+      "rating": {
+        "average": null,
+        "count": 0
+      },
+      "published_at": "2026-10-12T18:25:16+00:00",
+      "status": "active",
+      "rejection_reason": null,
+      "reviewed_at": null,
+      "expires_at": "2026-11-11T18:25:16+00:00",
+      "is_expired": false,
+      "farm_location_id": "01a13011-1cf2-7182-a8a6-888a6f43d7d4",
+      "stock": {
+        "unit": "kg",
+        "on_hand": "149",
+        "reserved": "0",
+        "available": "149",
+        "low_stock_threshold": null,
+        "is_low": false
+      },
+      "cover_image": {
+        "id": "01a1315c-a0cd-73d0-9b44-d0380d979fe8",
+        "url": "http://192.168.111.105:8000/storage/products/01a1315c-a085-7119-b4d3-2ffb7dd31456/01a1315c-a0c9-729e-985e-fc831480df80.webp",
+        "thumb_url": "http://192.168.111.105:8000/storage/products/01a1315c-a085-7119-b4d3-2ffb7dd31456/01a1315c-a0c9-729e-985e-fc831480df80_thumb.webp",
+        "width": 512,
+        "height": 512,
+        "position": 0
+      },
+      "created_at": "2026-10-12T18:25:16+00:00"
+    },
+    {
+      "id": "01a1315c-a038-7191-9861-6830ea6432c9",
+      "title": "Broccoli",
+      "description": "Tight, dark-green heads, cut the day they are sold.",
+      "category": {
+        "id": "01a13011-1c0b-7120-802b-e025baf74790",
+        "name": "Other vegetables",
+        "slug": "other-vegetables"
+      },
+      "quality_grade": "A",
+      "currency": "USD",
+      "stock_unit": {
+        "code": "head",
+        "name": "head",
+        "plural_name": "heads",
+        "measure": "count",
+        "allows_fraction": false
+      },
+      "available_quantity": "60",
+      "variants": [
+        {
+          "id": "01a1315c-a03a-71ef-9f2b-9447515eb78e",
+          "unit": {
+            "code": "head",
+            "name": "head",
+            "plural_name": "heads"
+          },
+          "label": null,
+          "base_quantity": "1",
+          "price": "1.50",
+          "price_tiers": [],
+          "min_order_quantity": "1",
+          "max_order_quantity": null,
+          "available_quantity": "60",
+          "is_active": true
+        }
+      ],
+      "farm": {
+        "id": "01a13011-1cee-7189-bdd9-2c9128bb9984",
+        "name": "Demo Green Acres",
+        "verified": true,
+        "contact_phone": "+263711241106"
+      },
+      "location": {
+        "province": "Mashonaland East",
+        "district": "Goromonzi",
+        "ward": "12"
+      },
+      "offers_pickup": true,
+      "offers_delivery": false,
+      "delivery_radius_km": null,
+      "last_harvested_on": "2026-10-12",
+      "rating": {
+        "average": null,
+        "count": 0
+      },
+      "published_at": "2026-10-12T18:25:16+00:00",
+      "status": "active",
+      "rejection_reason": null,
+      "reviewed_at": null,
+      "expires_at": "2026-11-11T18:25:16+00:00",
+      "is_expired": false,
+      "farm_location_id": "01a13011-1cf2-7182-a8a6-888a6f43d7d4",
+      "stock": {
+        "unit": "head",
+        "on_hand": "60",
+        "reserved": "0",
+        "available": "60",
+        "low_stock_threshold": null,
+        "is_low": false
+      },
+      "cover_image": {
+        "id": "01a1315c-a083-7108-bfaa-f8c22a6fa49a",
+        "url": "http://192.168.111.105:8000/storage/products/01a1315c-a038-7191-9861-6830ea6432c9/01a1315c-a07f-73be-986c-d53f24283141.webp",
+        "thumb_url": "http://192.168.111.105:8000/storage/products/01a1315c-a038-7191-9861-6830ea6432c9/01a1315c-a07f-73be-986c-d53f24283141_thumb.webp",
+        "width": 512,
+        "height": 512,
+        "position": 0
+      },
+      "created_at": "2026-10-12T18:25:16+00:00"
+    }
+  ],
+  "links": {
+    "first": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=1",
+    "last": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=3",
+    "prev": null,
+    "next": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=2"
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "page": null,
+        "active": false
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=1",
+        "label": "1",
+        "page": 1,
+        "active": true
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=2",
+        "label": "2",
+        "page": 2,
+        "active": false
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=3",
+        "label": "3",
+        "page": 3,
+        "active": false
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products?per_page=3&page=2",
+        "label": "Next &raquo;",
+        "page": 2,
+        "active": false
+      }
+    ],
+    "path": "http://127.0.0.1:8000/api/v1/farms/01a13011-1cee-7189-bdd9-2c9128bb9984/products",
+    "per_page": 3,
+    "to": 3,
+    "total": 8
+  }
+}

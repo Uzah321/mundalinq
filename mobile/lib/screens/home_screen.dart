@@ -13,6 +13,7 @@ import '../widgets/category_strip.dart';
 import '../widgets/common.dart';
 import '../widgets/harvest_banner.dart';
 import '../widgets/product_grid.dart';
+import 'farm/farm_shell.dart' show NotificationBell;
 import 'filter_sheet.dart';
 import 'location_sheet.dart';
 
@@ -51,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final user = context.select<Session, String?>((session) => session.user?.firstName);
     final basketCount = context.select<CartController, int>((cart) => cart.count);
+    final signedIn = context.select<Session, bool>((session) => session.signedIn);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -64,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               titleSpacing: 20,
               title: const Wordmark(),
               actions: [
+                if (signedIn) const NotificationBell(),
                 BadgedIconButton(
                   icon: LucideIcons.shoppingBag,
                   tooltip: 'Basket',

@@ -4,6 +4,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/api_client.dart';
 import '../api/models.dart';
 
+/// A staff sign-in waiting for the code texted to the account's phone. The token is the server's
+/// encrypted challenge, valid for a few minutes.
+class StaffChallenge {
+  const StaffChallenge(this.token, this.message);
+
+  final String token;
+  final String message;
+}
+
 /// Who is signed in. The Sanctum token is kept in the phone's secure storage (Android Keystore).
 class Session extends ChangeNotifier {
   Session(this.api, {FlutterSecureStorage? storage}) : _storage = storage ?? const FlutterSecureStorage();
@@ -43,8 +52,19 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn(String login, String password) async {
-    final response = await api.post('/auth/login', {'login': login, 'password': password, 'device_name': _deviceName});
+  /// Signs in, or for staff accounts returns the challenge to confirm with the code texted to their phone.
+  Future<StaffChallenge?> signIn(String login, String password) async {
+    final response = await api.post('/auth/login', {'login': login, 'password': password, 'device_name': _deviceName}) as Map<String, dynamic>;
+    if (response['two_factor_required'] == true) {
+      return StaffChallenge(response['challenge'] as String, response['message'] as String? ?? 'Enter the code we sent to your phone.');
+    }
+    await _start(response);
+    return null;
+  }
+
+  /// Second step of a staff sign-in.
+  Future<void> confirmStaffCode(StaffChallenge challenge, String code) async {
+    final response = await api.post('/auth/two-factor', {'challenge': challenge.token, 'code': code});
     await _start(response as Map<String, dynamic>);
   }
 
@@ -75,6 +95,19 @@ class Session extends ChangeNotifier {
 
   Future<void> sendCode() => api.post('/auth/phone/send-code');
 
+  /// Fetches the profile again, e.g. after adding a role or editing it elsewhere.
+  Future<void> reloadUser() async {
+    user = User.fromJson((await api.get('/me'))['data'] as Map<String, dynamic>);
+    notifyListeners();
+  }
+
+  /// Name and email; the phone number is changed through support, as it is the account's identity.
+  Future<void> updateProfile({required String name, String? email}) async {
+    final response = await api.patch('/me', {'name': name, 'email': (email?.isEmpty ?? true) ? null : email});
+    user = User.fromJson((response as Map<String, dynamic>)['data'] as Map<String, dynamic>);
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     try {
       await api.post('/auth/logout');
@@ -86,10 +119,7 @@ class Session extends ChangeNotifier {
 
   Future<void> _start(Map<String, dynamic> response) async {
     final token = response['token'] as String?;
-    if (token == null) {
-      // Staff accounts confirm sign-in with a second code; they use the web dashboard instead.
-      throw ApiException(403, 'Staff accounts sign in on the MundaLinq dashboard, not in the app.');
-    }
+    if (token == null) throw ApiException(0, "Sign-in didn't finish. Please try again.");
 
     api.token = token;
     user = User.fromJson(response['user'] as Map<String, dynamic>);

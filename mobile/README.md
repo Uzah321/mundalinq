@@ -1,13 +1,25 @@
 # MundaLinq mobile app
 
-Flutter buyer app for Android (and later iOS), talking to the Laravel API in `../backend`. It covers the whole
-buyer journey:
+Flutter app for Android and iOS, talking to the Laravel API in `../backend`. One app serves buyers and farmers;
+farmers switch between buying and selling from the Account tab.
 
-- Browse and search listings; filter by area, category, sort and delivery; view a listing and choose how to buy
-- Basket and favourites (both stored on the server), sign-up with phone verification
+**Buyers**
+- Browse and search listings; filter by area, category, sort and delivery; listing details with reviews
+- Basket and favourites (stored on the server), farm pages, messages with farms, notifications
 - Checkout: collection or delivery per farm, delivery addresses pinned with the phone's location, server-priced quote
-- Orders: wait for the farms to confirm, pay by mobile money, show the handover code at collection or delivery,
-  confirm receipt, report a problem, rate the farm
+- Orders: wait for the farms to confirm, pay by mobile money, show the handover code, confirm receipt, report a
+  problem (with photos) and follow it, rate the farm
+- Account: profile, addresses, which updates also come by SMS, signed-in devices, password reset, server address.
+  Staff accounts confirm sign-in with a code texted to their phone; reviewing farms happens on the website (`/admin`)
+
+**Farmers** ("Sell on MundaLinq" creates a farm; "Switch to selling" opens it)
+- Orders: new orders to accept (supplying less if short) or decline, mark ready, send out, hand over with the
+  buyer's 6-digit code; call or message the buyer, open the delivery address in Maps
+- Listings: create with a first selling option and opening stock, photos from camera or gallery, more ways to buy
+  (crates, bags…), add stock, publish, pause, renew, delete
+- Farm: verification with ID photos (an unverified farm's draft listings point there instead of offering
+  Publish), earnings and payouts, mobile money payout account, last-30-day sales,
+  reviews with replies, farm details; several farms per account
 
 ## Tools
 
@@ -130,15 +142,18 @@ Secrets stay out of Git: `backend/.env`, `mobile/android/key.properties` and `up
 
 ## Trying an order end to end
 
-There is no farm app yet, so act as the farm through the API (signed in as `farmer@mundalinq.test`):
-`POST /seller-orders/{id}/accept` once the order is placed, then after payment `.../ready` and
-`.../handover` with the code the buyer's app shows. The farm's incoming orders are at `GET /farms/{id}/orders`.
+Use two phones (or sign out and in): order as `buyer@mundalinq.test`, then sign in as `farmer@mundalinq.test`,
+tap **Switch to selling** and accept it under Orders. Pay on the buyer's phone with `0771111111`, mark it ready on
+the farmer's, and enter the buyer's handover code to complete it. The demo farmer owns every demo farm; switch farm
+by tapping its name at the top.
 
 ## Layout
 
 - `lib/api`: HTTP client and the API's data shapes
-- `lib/state`: session, basket, favourites, catalogue, search and shopping area (ChangeNotifiers via `provider`)
-- `lib/screens`: Home, Browse, Favourites, Basket, Account; checkout, addresses, orders and payment; the listing,
-  sign-in, location and filter sheets
+- `lib/state`: session, basket, favourites, catalogue, search, shopping area, farms and the notification badge
+  (ChangeNotifiers via `provider`)
+- `lib/screens`: the market's tabs (Home, Browse, Favourites, Basket, Account), checkout, orders and payment,
+  messages, notifications, problem reports and account settings
+- `lib/screens/farm`: the farm's tabs (Orders, Listings, Messages, Farm), listings, verification, earnings
 - `lib/widgets`: product card and grid, banner, category strip, shared bits
 - `lib/util/format.dart`: money and quantity arithmetic in whole cents and thousandths, as on the web and server

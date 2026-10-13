@@ -26,6 +26,15 @@ class ApiException implements Exception {
 String errorMessage(Object error) =>
     error is ApiException ? error.detail : 'Something went wrong. Please try again.';
 
+/// A file for [ApiClient.upload]: the form field it goes in, its bytes and its name.
+class UploadFile {
+  const UploadFile(this.field, this.bytes, this.filename);
+
+  final String field;
+  final List<int> bytes;
+  final String filename;
+}
+
 /// Thin client for the MundaLinq JSON API (/api/v1). Signed-in requests carry a Sanctum bearer token.
 class ApiClient {
   /// [baseUrl] fixes the server (for tests); otherwise each request goes to [Server.baseUrl].
@@ -51,23 +60,40 @@ class ApiClient {
 
   Future<dynamic> delete(String path) => _send('DELETE', path);
 
-  Future<dynamic> _send(String method, String path, {Map<String, Object?>? query, Object? body}) async {
+  /// Multipart POST for photos and documents. Files are sent from memory, so this works the same on phones and
+  /// in the browser.
+  Future<dynamic> upload(String path, {Map<String, String> fields = const {}, required List<UploadFile> files}) {
+    final request = http.MultipartRequest('POST', _uri(path))
+      ..fields.addAll(fields)
+      ..files.addAll([for (final file in files) http.MultipartFile.fromBytes(file.field, file.bytes, filename: file.filename)]);
+    // Photos on a slow connection take a while.
+    return _dispatch(request, timeout: const Duration(seconds: 120));
+  }
+
+  Uri _uri(String path, [Map<String, Object?>? query]) {
     final params = <String, String>{
       for (final entry in (query ?? const {}).entries)
         if (entry.value != null && entry.value != '') entry.key: '${entry.value}',
     };
-    final uri = Uri.parse('${_fixedBaseUrl ?? Server.baseUrl}$path').replace(queryParameters: params.isEmpty ? null : params);
+    return Uri.parse('${_fixedBaseUrl ?? Server.baseUrl}$path').replace(queryParameters: params.isEmpty ? null : params);
+  }
 
-    final request = http.Request(method, uri)..headers['Accept'] = 'application/json';
-    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+  Future<dynamic> _send(String method, String path, {Map<String, Object?>? query, Object? body}) {
+    final request = http.Request(method, _uri(path, query));
     if (body != null) {
       request.headers['Content-Type'] = 'application/json';
       request.body = jsonEncode(body);
     }
+    return _dispatch(request);
+  }
+
+  Future<dynamic> _dispatch(http.BaseRequest request, {Duration timeout = const Duration(seconds: 20)}) async {
+    request.headers['Accept'] = 'application/json';
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
 
     final http.Response response;
     try {
-      response = await http.Response.fromStream(await _client.send(request).timeout(const Duration(seconds: 20)));
+      response = await http.Response.fromStream(await _client.send(request).timeout(timeout));
     } on SocketException {
       throw ApiException(0, "We couldn't reach MundaLinq. Check your connection and try again.");
     } on TimeoutException {

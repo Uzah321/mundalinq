@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api_client.dart';
+import '../api/farm_models.dart';
 import '../api/models.dart';
 import '../state/cart.dart';
 import '../state/catalog.dart';
@@ -13,6 +14,9 @@ import '../theme.dart';
 import '../util/format.dart';
 import '../widgets/category_visual.dart';
 import '../widgets/common.dart';
+import '../widgets/reviews.dart';
+import 'farm_page_screen.dart';
+import 'messages/chat_screen.dart';
 import 'store_actions.dart';
 
 Future<void> showProductSheet(BuildContext context, String productId) {
@@ -93,6 +97,8 @@ class _ProductBody extends StatefulWidget {
 class _ProductBodyState extends State<_ProductBody> {
   late Variant? _variant;
   int _photo = 0;
+  List<Review> _reviews = const [];
+  ReviewSummary? _summary;
 
   ProductDetail get product => widget.product;
 
@@ -103,6 +109,28 @@ class _ProductBodyState extends State<_ProductBody> {
     // Start on the option already in the basket, if any.
     _variant = product.variants.where((variant) => cart.lineForVariant(variant.id) != null).firstOrNull ??
         product.variants.firstOrNull;
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    try {
+      final response = await context.read<ApiClient>().get('/products/${product.id}/reviews') as Map<String, dynamic>;
+      if (!mounted) return;
+      setState(() {
+        _reviews = (response['data'] as List).cast<Map<String, dynamic>>().map(Review.fromJson).take(3).toList();
+        _summary = ReviewSummary.fromJson((response['meta'] as Map<String, dynamic>?)?['summary'] as Map<String, dynamic>?);
+      });
+    } catch (_) {
+      // Reviews are a nice-to-have here; the listing works without them.
+    }
+  }
+
+  Future<void> _message() async {
+    if (!await ensureSignedIn(context, 'Sign in to message ${product.farmName}.')) return;
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ChatScreen.forFarm(farmId: product.farmId, productId: product.id, title: product.farmName)),
+    );
   }
 
   @override
@@ -176,7 +204,15 @@ class _ProductBodyState extends State<_ProductBody> {
           spacing: 6,
           children: [
             const Icon(LucideIcons.sprout, size: 13, color: Brand.green),
-            Text(product.farmName, style: const TextStyle(fontSize: 12, color: Brand.mutedText)),
+            InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => FarmPageScreen(farmId: product.farmId, farmName: product.farmName)),
+              ),
+              child: Text(
+                product.farmName,
+                style: const TextStyle(fontSize: 12, color: Brand.green, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+              ),
+            ),
             if (product.farmVerified)
               const Row(
                 mainAxisSize: MainAxisSize.min,
@@ -236,6 +272,19 @@ class _ProductBodyState extends State<_ProductBody> {
             const SizedBox(height: 12),
           ],
           _QuantityPicker(key: ValueKey(variant.id), product: product, variant: variant),
+        ],
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _message,
+          icon: const Icon(LucideIcons.messageCircle, size: 18),
+          label: const Text('Ask the farm a question'),
+        ),
+        if (_summary != null && _summary!.count > 0) ...[
+          const SizedBox(height: 24),
+          Text('Reviews', style: Brand.display(size: 17)),
+          const SizedBox(height: 12),
+          ReviewSummaryView(summary: _summary!),
+          for (final review in _reviews) ReviewTile(review: review),
         ],
       ],
     );

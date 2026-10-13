@@ -2,7 +2,7 @@ name: mundalinq
 description: "MundaLinq: fresh produce straight from verified farms. Buyer app for Android and iOS."
 publish_to: 'none'
 
-version: 0.1.0+1
+version: 0.2.3+5
 
 environment:
   sdk: ^3.13.0
@@ -15,10 +15,14 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   geolocator: ^14.1.1
   http: ^1.6.0
+  # Listing photos, farm verification documents and problem-report photos.
+  image_picker: ^1.2.4
   # The icon set the web storefront uses, so both look alike.
   lucide_icons_flutter: ^3.1.25
   provider: ^6.1.5
   shared_preferences: ^2.5.6
+  # Calling a buyer or farm, and opening addresses in Maps.
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

@@ -10,6 +10,7 @@ import '../state/session.dart';
 import '../theme.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
+import 'reset_password_screen.dart';
 
 /// Sign in or create an account. Pops with true once the buyer is signed in.
 class AuthScreen extends StatefulWidget {
@@ -149,6 +150,9 @@ class _SignInFormState extends State<_SignInForm> {
   ApiException? _error;
   bool _busy = false;
 
+  /// Set for staff accounts until they enter the code texted to them.
+  StaffChallenge? _challenge;
+
   @override
   void dispose() {
     _login.dispose();
@@ -162,7 +166,11 @@ class _SignInFormState extends State<_SignInForm> {
       _error = null;
     });
     try {
-      await context.read<Session>().signIn(_login.text.trim(), _password.text);
+      final challenge = await context.read<Session>().signIn(_login.text.trim(), _password.text);
+      if (challenge != null) {
+        setState(() => _challenge = challenge);
+        return;
+      }
       TextInput.finishAutofillContext();
       widget.onSignedIn();
     } on ApiException catch (error) {
@@ -176,6 +184,19 @@ class _SignInFormState extends State<_SignInForm> {
 
   @override
   Widget build(BuildContext context) {
+    final challenge = _challenge;
+    if (challenge != null) {
+      return _StaffCodeView(
+        challenge: challenge,
+        onResend: () => context.read<Session>().signIn(_login.text.trim(), _password.text),
+        onBack: () => setState(() => _challenge = null),
+        onSignedIn: () {
+          TextInput.finishAutofillContext();
+          widget.onSignedIn();
+        },
+      );
+    }
+
     return AutofillGroup(
       child: ListView(
         padding: const EdgeInsets.all(20),
@@ -213,8 +234,159 @@ class _SignInFormState extends State<_SignInForm> {
                 ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Text('Sign in'),
           ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ResetPasswordScreen())),
+            child: const Text('Forgot your password?'),
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// Second step of a staff sign-in: the 6-digit code texted to the account's phone.
+class _StaffCodeView extends StatefulWidget {
+  const _StaffCodeView({required this.challenge, required this.onResend, required this.onBack, required this.onSignedIn});
+
+  final StaffChallenge challenge;
+
+  /// Signs in again, which texts a fresh code.
+  final Future<StaffChallenge?> Function() onResend;
+  final VoidCallback onBack;
+  final VoidCallback onSignedIn;
+
+  @override
+  State<_StaffCodeView> createState() => _StaffCodeViewState();
+}
+
+class _StaffCodeViewState extends State<_StaffCodeView> {
+  final _code = TextEditingController();
+  late StaffChallenge _challenge = widget.challenge;
+  int _cooldown = 60;
+  Timer? _timer;
+  String? _error;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _code.dispose();
+    super.dispose();
+  }
+
+  void _tick() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return timer.cancel();
+      setState(() => _cooldown--);
+      if (_cooldown <= 0) timer.cancel();
+    });
+  }
+
+  Future<void> _confirm() async {
+    if (_busy) return;
+    if (_code.text.length != 6) {
+      setState(() => _error = 'Enter all 6 digits of the code.');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await context.read<Session>().confirmStaffCode(_challenge, _code.text);
+      widget.onSignedIn();
+    } on ApiException catch (error) {
+      setState(() {
+        _error = error.detail;
+        _code.clear();
+      });
+    } catch (error) {
+      setState(() => _error = errorMessage(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _resend() async {
+    setState(() => _error = null);
+    try {
+      final next = await widget.onResend();
+      if (next == null) {
+        // The account no longer needs the code (e.g. staff access was removed): it is signed in.
+        widget.onSignedIn();
+        return;
+      }
+      setState(() {
+        _challenge = next;
+        _cooldown = 60;
+        _code.clear();
+      });
+      _tick();
+    } on ApiException catch (error) {
+      setState(() => _error = error.detail);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: [
+        const Icon(LucideIcons.shieldCheck, size: 34, color: Brand.green),
+        const SizedBox(height: 14),
+        Text("Confirm it's you", textAlign: TextAlign.center, style: Brand.display(size: 20)),
+        const SizedBox(height: 8),
+        Text(
+          '${_challenge.message} Staff accounts need this extra step.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 15, height: 1.5, color: Brand.mutedText),
+        ),
+        const SizedBox(height: 24),
+        TextField(
+          controller: _code,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          maxLength: 6,
+          autofillHints: const [AutofillHints.oneTimeCode],
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: Brand.display(size: 26, weight: FontWeight.w700).copyWith(letterSpacing: 14),
+          decoration: InputDecoration(counterText: '', hintText: '••••••', errorText: _error, errorMaxLines: 2),
+          onChanged: (value) {
+            if (value.length == 6) _confirm();
+          },
+        ),
+        const SizedBox(height: 16),
+        FilledButton(
+          onPressed: _busy ? null : _confirm,
+          child: _busy
+              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Text('Sign in'),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: _cooldown > 0 ? null : _resend,
+              child: Text(_cooldown > 0 ? 'New code in ${_cooldown}s' : 'Send a new code'),
+            ),
+            TextButton(
+              onPressed: widget.onBack,
+              style: TextButton.styleFrom(foregroundColor: Brand.ink),
+              child: const Text('Back'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -10,6 +10,8 @@ import '../theme.dart';
 import '../util/format.dart';
 import '../util/order_status.dart';
 import '../widgets/common.dart';
+import 'dispute_screen.dart';
+import 'messages/chat_screen.dart';
 import 'order_actions.dart';
 
 /// One order: what happens next, paying, each farm's progress, handover codes and after-sale actions.
@@ -315,6 +317,28 @@ class _SellerOrderCard extends StatelessWidget {
                 style: TextStyle(fontSize: 12.5, height: 1.5, color: Brand.mutedText),
               ),
             ),
+          Wrap(
+            spacing: 4,
+            children: [
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ChatScreen.forOrder(sellerOrderId: seller.id, farmId: seller.farmId, title: seller.farmName, asFarm: false),
+                  ),
+                ),
+                icon: const Icon(LucideIcons.messageCircle, size: 16),
+                label: const Text('Message the farm'),
+              ),
+              if (seller.disputeId != null)
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => DisputeScreen(disputeId: seller.disputeId!, asBuyer: true)),
+                  ),
+                  icon: const Icon(LucideIcons.circleAlert, size: 16),
+                  label: const Text('Your problem report'),
+                ),
+            ],
+          ),
           if (seller.status == 'completed') ...[
             const SizedBox(height: 10),
             if (seller.reviewRating == null)

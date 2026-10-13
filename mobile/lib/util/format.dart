@@ -36,12 +36,14 @@ String fromMilli(int milli) {
 
 const _symbols = {'USD': r'$', 'ZAR': 'R', 'BWP': 'P', 'ZWG': 'ZiG '};
 
+/// "$1,234.50"; negative amounts (fees, refunds in the earnings ledger) as "−$0.12".
 String formatMoney(String amount, [String currency = 'USD']) {
-  final minor = toMinor(amount) ?? 0;
+  final negative = amount.trim().startsWith('-');
+  final minor = toMinor(negative ? amount.trim().substring(1) : amount) ?? 0;
   final digits = fromMinor(minor);
   final parts = digits.split('.');
   final whole = parts[0].replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
-  return '${_symbols[currency] ?? '$currency '}$whole.${parts[1]}';
+  return '${negative && minor != 0 ? '−' : ''}${_symbols[currency] ?? '$currency '}$whole.${parts[1]}';
 }
 
 String formatMinor(int minor, [String currency = 'USD']) => formatMoney(fromMinor(minor), currency);

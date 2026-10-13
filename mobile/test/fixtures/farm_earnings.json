@@ -1,0 +1,63 @@
+{
+  "data": {
+    "currency": "USD",
+    "pending": "2.28",
+    "available": "70.30",
+    "entries": [
+      {
+        "id": "01a13389-110c-731e-a74d-10cd31944fa6",
+        "type": "commission",
+        "amount": "-0.10",
+        "description": "Platform fee for ML-4Z2ANS-1",
+        "seller_order_number": "ML-4Z2ANS-1",
+        "available": true,
+        "created_at": "2026-10-13T04:33:03+00:00"
+      },
+      {
+        "id": "01a13389-1105-7311-8197-2b450ca441ff",
+        "type": "sale",
+        "amount": "2.00",
+        "description": "Sale ML-4Z2ANS-1",
+        "seller_order_number": "ML-4Z2ANS-1",
+        "available": true,
+        "created_at": "2026-10-13T04:33:03+00:00"
+      },
+      {
+        "id": "01a1337d-fbfa-7061-b194-5ec682b66933",
+        "type": "commission",
+        "amount": "-0.12",
+        "description": "Platform fee for ML-P8JK5Z-1",
+        "seller_order_number": "ML-P8JK5Z-1",
+        "available": false,
+        "created_at": "2026-10-13T04:20:56+00:00"
+      },
+      {
+        "id": "01a1337d-fbf0-7183-8871-77e05c95ee7b",
+        "type": "sale",
+        "amount": "2.40",
+        "description": "Sale ML-P8JK5Z-1",
+        "seller_order_number": "ML-P8JK5Z-1",
+        "available": false,
+        "created_at": "2026-10-13T04:20:56+00:00"
+      },
+      {
+        "id": "01a13011-d0ee-738f-bc41-d8de324cbfaa",
+        "type": "commission",
+        "amount": "-3.60",
+        "description": "Platform fee for ML-CVCARN-1",
+        "seller_order_number": "ML-CVCARN-1",
+        "available": true,
+        "created_at": "2026-10-12T12:23:56+00:00"
+      },
+      {
+        "id": "01a13011-d0e0-7341-b59e-dfb17c0ac4e7",
+        "type": "sale",
+        "amount": "72.00",
+        "description": "Sale ML-CVCARN-1",
+        "seller_order_number": "ML-CVCARN-1",
+        "available": true,
+        "created_at": "2026-10-12T12:23:56+00:00"
+      }
+    ]
+  }
+}
